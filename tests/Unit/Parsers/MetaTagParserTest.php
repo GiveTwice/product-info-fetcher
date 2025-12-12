@@ -9,7 +9,8 @@ dataset('metatag_html', [
             'name' => 'MacBook Pro 16-inch',
             'description' => 'The most powerful MacBook Pro ever',
             'url' => 'https://apple.com/macbook-pro',
-            'price' => '2499.00',
+            'priceInCents' => 249900,
+            'priceCurrency' => 'USD',
             'imageUrl' => 'https://apple.com/images/macbook-pro.jpg',
         ],
     ],
@@ -19,7 +20,8 @@ dataset('metatag_html', [
             'name' => 'Twitter Product Title',
             'description' => 'Description from Twitter card',
             'url' => null,
-            'price' => null,
+            'priceInCents' => null,
+            'priceCurrency' => null,
             'imageUrl' => 'https://example.com/twitter-image.jpg',
         ],
     ],
@@ -29,7 +31,8 @@ dataset('metatag_html', [
             'name' => 'Product with Canonical',
             'description' => 'Has a canonical URL',
             'url' => 'https://example.com/canonical-url',
-            'price' => null,
+            'priceInCents' => null,
+            'priceCurrency' => null,
             'imageUrl' => 'https://example.com/image.jpg',
         ],
     ],
@@ -39,7 +42,8 @@ dataset('metatag_html', [
             'name' => 'Product Title',
             'description' => 'Standard meta description fallback',
             'url' => null,
-            'price' => null,
+            'priceInCents' => null,
+            'priceCurrency' => null,
             'imageUrl' => null,
         ],
     ],
@@ -49,7 +53,8 @@ dataset('metatag_html', [
             'name' => 'OG Title Takes Priority',
             'description' => 'Twitter Description Used',
             'url' => 'https://example.com/og-url',
-            'price' => null,
+            'priceInCents' => null,
+            'priceCurrency' => null,
             'imageUrl' => 'https://example.com/og-image.jpg',
         ],
     ],
@@ -59,7 +64,8 @@ dataset('metatag_html', [
             'name' => null,
             'description' => null,
             'url' => null,
-            'price' => null,
+            'priceInCents' => null,
+            'priceCurrency' => null,
             'imageUrl' => null,
         ],
     ],
@@ -69,7 +75,8 @@ dataset('metatag_html', [
             'name' => 'Only Title Present',
             'description' => null,
             'url' => null,
-            'price' => null,
+            'priceInCents' => null,
+            'priceCurrency' => null,
             'imageUrl' => 'https://example.com/only-image.jpg',
         ],
     ],
@@ -81,6 +88,7 @@ it('parses meta tag data correctly', function (string $fixture, array $expected)
     expect($result->name)->toBe($expected['name'])
         ->and($result->description)->toBe($expected['description'])
         ->and($result->url)->toBe($expected['url'])
-        ->and($result->price)->toBe($expected['price'])
+        ->and($result->priceInCents)->toBe($expected['priceInCents'])
+        ->and($result->priceCurrency)->toBe($expected['priceCurrency'])
         ->and($result->imageUrl)->toBe($expected['imageUrl']);
 })->with('metatag_html');

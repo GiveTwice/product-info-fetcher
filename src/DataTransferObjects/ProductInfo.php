@@ -8,7 +8,8 @@ class ProductInfo
         public ?string $name = null,
         public ?string $description = null,
         public ?string $url = null,
-        public ?string $price = null,
+        public ?int $priceInCents = null,
+        public ?string $priceCurrency = null,
         public ?string $imageUrl = null,
     ) {}
 
@@ -16,7 +17,22 @@ class ProductInfo
     {
         return $this->name !== null
             && $this->description !== null
-            && $this->price !== null;
+            && $this->priceInCents !== null;
+    }
+
+    public function getFormattedPrice(): ?string
+    {
+        if ($this->priceInCents === null) {
+            return null;
+        }
+
+        $price = number_format($this->priceInCents / 100, 2, '.', '');
+
+        if ($this->priceCurrency !== null) {
+            return "{$this->priceCurrency} {$price}";
+        }
+
+        return $price;
     }
 
     public function toArray(): array
@@ -25,7 +41,8 @@ class ProductInfo
             'name' => $this->name,
             'description' => $this->description,
             'url' => $this->url,
-            'price' => $this->price,
+            'priceInCents' => $this->priceInCents,
+            'priceCurrency' => $this->priceCurrency,
             'imageUrl' => $this->imageUrl,
         ];
     }

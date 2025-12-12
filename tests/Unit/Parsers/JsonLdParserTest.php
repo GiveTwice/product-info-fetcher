@@ -9,7 +9,8 @@ dataset('jsonld_html', [
             'name' => 'iPhone 15 Pro',
             'description' => 'The latest iPhone with A17 Pro chip',
             'url' => 'https://apple.com/iphone-15-pro',
-            'price' => 'USD 999.00',
+            'priceInCents' => 99900,
+            'priceCurrency' => 'USD',
             'imageUrl' => 'https://apple.com/images/iphone-15-pro.jpg',
         ],
     ],
@@ -19,7 +20,8 @@ dataset('jsonld_html', [
             'name' => 'Simple Product',
             'description' => null,
             'url' => null,
-            'price' => '49.99',
+            'priceInCents' => 4999,
+            'priceCurrency' => null,
             'imageUrl' => null,
         ],
     ],
@@ -29,7 +31,8 @@ dataset('jsonld_html', [
             'name' => 'Product with multiple images',
             'description' => 'A product',
             'url' => null,
-            'price' => 'EUR 29.99',
+            'priceInCents' => 2999,
+            'priceCurrency' => 'EUR',
             'imageUrl' => 'https://example.com/image1.jpg',
         ],
     ],
@@ -39,7 +42,8 @@ dataset('jsonld_html', [
             'name' => 'Product with ImageObject',
             'description' => 'Has structured image',
             'url' => null,
-            'price' => 'GBP 15.00',
+            'priceInCents' => 1500,
+            'priceCurrency' => 'GBP',
             'imageUrl' => 'https://example.com/structured-image.jpg',
         ],
     ],
@@ -49,7 +53,8 @@ dataset('jsonld_html', [
             'name' => 'Graph Product',
             'description' => 'Found in graph',
             'url' => 'https://example.com/graph-product',
-            'price' => 'USD 199.00',
+            'priceInCents' => 19900,
+            'priceCurrency' => 'USD',
             'imageUrl' => 'https://example.com/graph.jpg',
         ],
     ],
@@ -59,7 +64,8 @@ dataset('jsonld_html', [
             'name' => null,
             'description' => null,
             'url' => null,
-            'price' => null,
+            'priceInCents' => null,
+            'priceCurrency' => null,
             'imageUrl' => null,
         ],
     ],
@@ -69,7 +75,8 @@ dataset('jsonld_html', [
             'name' => null,
             'description' => null,
             'url' => null,
-            'price' => null,
+            'priceInCents' => null,
+            'priceCurrency' => null,
             'imageUrl' => null,
         ],
     ],
@@ -79,7 +86,8 @@ dataset('jsonld_html', [
             'name' => null,
             'description' => null,
             'url' => null,
-            'price' => null,
+            'priceInCents' => null,
+            'priceCurrency' => null,
             'imageUrl' => null,
         ],
     ],
@@ -91,6 +99,7 @@ it('parses json-ld product data correctly', function (string $fixture, array $ex
     expect($result->name)->toBe($expected['name'])
         ->and($result->description)->toBe($expected['description'])
         ->and($result->url)->toBe($expected['url'])
-        ->and($result->price)->toBe($expected['price'])
+        ->and($result->priceInCents)->toBe($expected['priceInCents'])
+        ->and($result->priceCurrency)->toBe($expected['priceCurrency'])
         ->and($result->imageUrl)->toBe($expected['imageUrl']);
 })->with('jsonld_html');

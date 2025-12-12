@@ -137,7 +137,7 @@ class ProductInfoFetcherClass
 
     private function parseHtml(string $html): ProductInfo
     {
-        $jsonLdResult = (new JsonLdParser($html))->parse();
+        $jsonLdResult = (new JsonLdParser($html, $this->url))->parse();
         if ($jsonLdResult->isComplete()) {
             return $jsonLdResult;
         }
@@ -158,7 +158,8 @@ class ProductInfoFetcherClass
             $merged->name = $merged->name ?? $result->name;
             $merged->description = $merged->description ?? $result->description;
             $merged->url = $merged->url ?? $result->url;
-            $merged->price = $merged->price ?? $result->price;
+            $merged->priceInCents = $merged->priceInCents ?? $result->priceInCents;
+            $merged->priceCurrency = $merged->priceCurrency ?? $result->priceCurrency;
             $merged->imageUrl = $merged->imageUrl ?? $result->imageUrl;
         }
 

@@ -13,7 +13,8 @@ it('fetches and parses a real product page', function () {
 
     expect($result->name)->toBe('Oh Dear Subscription')
         ->and($result->description)->toBe('All-in-one website monitoring platform. Track uptime, SSL certificates, broken links, DNS changes, scheduled tasks, and application health from a single dashboard.')
-        ->and($result->price)->toBe('EUR 15.00')
+        ->and($result->priceInCents)->toBe(1500)
+        ->and($result->priceCurrency)->toBe('EUR')
         ->and($result->imageUrl)->toBe('https://request-mirror.ohdear.app/img/og-image.png');
 });
 
@@ -24,7 +25,7 @@ it('falls back to meta tags for non-product json-ld types', function () {
     expect($result->name)->toBe('Recipe: The perfect website monitoring stack')
         ->and($result->description)->toBe("A chef's guide to cooking up the perfect monitoring setup. Takes 5 minutes to prepare, lasts a lifetime.")
         ->and($result->url)->toBe('https://request-mirror.ohdear.app/examples/recipe')
-        ->and($result->price)->toBeEmpty()
+        ->and($result->priceInCents)->toBeNull()
         ->and($result->imageUrl)->toBe('https://request-mirror.ohdear.app/img/og-image.png');
 });
 
@@ -35,7 +36,8 @@ it('can fetch and parse separately', function () {
     $result = $fetcher->parse();
 
     expect($result->name)->toBe('Oh Dear Subscription')
-        ->and($result->price)->toBe('EUR 15.00');
+        ->and($result->priceInCents)->toBe(1500)
+        ->and($result->priceCurrency)->toBe('EUR');
 });
 
 it('sends custom user agent header', function () {
