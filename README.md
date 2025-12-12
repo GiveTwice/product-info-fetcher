@@ -22,12 +22,22 @@ use Mattiasgeniar\ProductInfoFetcher\ProductInfoFetcherClass;
 $product = (new ProductInfoFetcherClass('https://example.com/product'))
     ->fetchAndParse();
 
+// Core fields
 echo $product->name;          // "iPhone 15 Pro"
 echo $product->description;   // "The latest iPhone with A17 Pro chip"
 echo $product->priceInCents;  // 99900
 echo $product->priceCurrency; // "USD"
 echo $product->url;           // "https://example.com/product"
 echo $product->imageUrl;      // "https://example.com/images/iphone.jpg"
+
+// Additional fields
+echo $product->brand;         // "Apple"
+echo $product->sku;           // "IPHONE15PRO-256"
+echo $product->gtin;          // "0194253392200"
+echo $product->availability;  // ProductAvailability::InStock
+echo $product->condition;     // ProductCondition::New
+echo $product->rating;        // 4.8
+echo $product->reviewCount;   // 1250
 
 // For display purposes
 echo $product->getFormattedPrice(); // "USD 999.00"
