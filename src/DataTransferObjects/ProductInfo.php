@@ -2,6 +2,9 @@
 
 namespace Mattiasgeniar\ProductInfoFetcher\DataTransferObjects;
 
+use Mattiasgeniar\ProductInfoFetcher\Enum\ProductAvailability;
+use Mattiasgeniar\ProductInfoFetcher\Enum\ProductCondition;
+
 class ProductInfo
 {
     public function __construct(
@@ -11,6 +14,13 @@ class ProductInfo
         public ?int $priceInCents = null,
         public ?string $priceCurrency = null,
         public ?string $imageUrl = null,
+        public ?string $brand = null,
+        public ?string $sku = null,
+        public ?string $gtin = null,
+        public ?ProductAvailability $availability = null,
+        public ?ProductCondition $condition = null,
+        public ?float $rating = null,
+        public ?int $reviewCount = null,
     ) {}
 
     public function isComplete(): bool
@@ -44,6 +54,13 @@ class ProductInfo
             'priceInCents' => $this->priceInCents,
             'priceCurrency' => $this->priceCurrency,
             'imageUrl' => $this->imageUrl,
+            'brand' => $this->brand,
+            'sku' => $this->sku,
+            'gtin' => $this->gtin,
+            'availability' => $this->availability?->value,
+            'condition' => $this->condition?->value,
+            'rating' => $this->rating,
+            'reviewCount' => $this->reviewCount,
         ];
     }
 }

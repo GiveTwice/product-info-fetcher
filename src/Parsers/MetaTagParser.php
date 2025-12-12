@@ -5,6 +5,8 @@ namespace Mattiasgeniar\ProductInfoFetcher\Parsers;
 use DOMDocument;
 use DOMXPath;
 use Mattiasgeniar\ProductInfoFetcher\DataTransferObjects\ProductInfo;
+use Mattiasgeniar\ProductInfoFetcher\Enum\ProductAvailability;
+use Mattiasgeniar\ProductInfoFetcher\Enum\ProductCondition;
 
 class MetaTagParser
 {
@@ -31,6 +33,10 @@ class MetaTagParser
             priceInCents: $this->extractPriceInCents(),
             priceCurrency: $this->extractPriceCurrency(),
             imageUrl: $this->extractImage(),
+            brand: $this->extractMetaContent('product:brand'),
+            sku: $this->extractMetaContent('product:retailer_item_id'),
+            availability: ProductAvailability::fromString($this->extractMetaContent('product:availability')),
+            condition: ProductCondition::fromString($this->extractMetaContent('product:condition')),
         );
     }
 

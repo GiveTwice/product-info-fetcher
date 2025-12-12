@@ -161,6 +161,13 @@ class ProductInfoFetcherClass
             $merged->priceInCents = $merged->priceInCents ?? $result->priceInCents;
             $merged->priceCurrency = $merged->priceCurrency ?? $result->priceCurrency;
             $merged->imageUrl = $merged->imageUrl ?? $result->imageUrl;
+            $merged->brand = $merged->brand ?? $result->brand;
+            $merged->sku = $merged->sku ?? $result->sku;
+            $merged->gtin = $merged->gtin ?? $result->gtin;
+            $merged->availability = $merged->availability ?? $result->availability;
+            $merged->condition = $merged->condition ?? $result->condition;
+            $merged->rating = $merged->rating ?? $result->rating;
+            $merged->reviewCount = $merged->reviewCount ?? $result->reviewCount;
         }
 
         return $merged;

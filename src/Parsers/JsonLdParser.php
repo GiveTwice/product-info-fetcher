@@ -3,6 +3,8 @@
 namespace Mattiasgeniar\ProductInfoFetcher\Parsers;
 
 use Mattiasgeniar\ProductInfoFetcher\DataTransferObjects\ProductInfo;
+use Mattiasgeniar\ProductInfoFetcher\Enum\ProductAvailability;
+use Mattiasgeniar\ProductInfoFetcher\Enum\ProductCondition;
 
 class JsonLdParser
 {
@@ -20,6 +22,8 @@ class JsonLdParser
         }
 
         $priceData = $this->extractPriceData($productData);
+        $offerData = $this->extractOfferData($productData);
+        $ratingData = $this->extractRatingData($productData);
 
         return new ProductInfo(
             name: $productData['name'] ?? null,
@@ -28,6 +32,13 @@ class JsonLdParser
             priceInCents: $priceData['priceInCents'],
             priceCurrency: $priceData['priceCurrency'],
             imageUrl: $this->extractImage($productData),
+            brand: $this->extractBrand($productData),
+            sku: $productData['sku'] ?? null,
+            gtin: $this->extractGtin($productData),
+            availability: $offerData['availability'],
+            condition: $offerData['condition'],
+            rating: $ratingData['rating'],
+            reviewCount: $ratingData['reviewCount'],
         );
     }
 
@@ -170,23 +181,33 @@ class JsonLdParser
 
     private function extractPriceData(array $data): array
     {
-        $result = ['priceInCents' => null, 'priceCurrency' => null];
-
         if (! isset($data['offers'])) {
-            return $result;
+            return [
+                'priceInCents' => null,
+                'priceCurrency' => null,
+            ];
         }
 
         $offers = $data['offers'];
 
         if (isset($offers['price'])) {
-            $result['priceInCents'] = $this->normalizePriceToCents($offers['price']);
-            $result['priceCurrency'] = $offers['priceCurrency'] ?? null;
-        } elseif (isset($offers[0]['price'])) {
-            $result['priceInCents'] = $this->normalizePriceToCents($offers[0]['price']);
-            $result['priceCurrency'] = $offers[0]['priceCurrency'] ?? null;
+            return [
+                'priceInCents' => $this->normalizePriceToCents($offers['price']),
+                'priceCurrency' => $offers['priceCurrency'] ?? null,
+            ];
         }
 
-        return $result;
+        if (isset($offers[0]['price'])) {
+            return [
+                'priceInCents' => $this->normalizePriceToCents($offers[0]['price']),
+                'priceCurrency' => $offers[0]['priceCurrency'] ?? null,
+            ];
+        }
+
+        return [
+            'priceInCents' => null,
+            'priceCurrency' => null,
+        ];
     }
 
     private function normalizePriceToCents(mixed $price): int
@@ -213,5 +234,64 @@ class JsonLdParser
         }
 
         return (int) round((float) $priceString * 100);
+    }
+
+    private function extractBrand(array $data): ?string
+    {
+        if (! isset($data['brand'])) {
+            return null;
+        }
+
+        $brand = $data['brand'];
+
+        if (is_string($brand)) {
+            return $brand;
+        }
+
+        if (is_array($brand)) {
+            return $brand['name'] ?? null;
+        }
+
+        return null;
+    }
+
+    private function extractGtin(array $data): ?string
+    {
+        return $data['gtin'] ?? $data['gtin14'] ?? $data['gtin13'] ?? $data['gtin12'] ?? $data['gtin8'] ?? null;
+    }
+
+    private function extractOfferData(array $data): array
+    {
+        if (! isset($data['offers'])) {
+            return [
+                'availability' => null,
+                'condition' => ProductCondition::fromString($data['itemCondition'] ?? null),
+            ];
+        }
+
+        $offer = $data['offers'][0] ?? $data['offers'];
+
+        return [
+            'availability' => ProductAvailability::fromString($offer['availability'] ?? null),
+            'condition' => ProductCondition::fromString($offer['itemCondition'] ?? $data['itemCondition'] ?? null),
+        ];
+    }
+
+    private function extractRatingData(array $data): array
+    {
+        if (! isset($data['aggregateRating'])) {
+            return [
+                'rating' => null,
+                'reviewCount' => null,
+            ];
+        }
+
+        $rating = $data['aggregateRating'];
+        $reviewCount = $rating['reviewCount'] ?? $rating['ratingCount'] ?? null;
+
+        return [
+            'rating' => isset($rating['ratingValue']) ? (float) $rating['ratingValue'] : null,
+            'reviewCount' => $reviewCount !== null ? (int) $reviewCount : null,
+        ];
     }
 }

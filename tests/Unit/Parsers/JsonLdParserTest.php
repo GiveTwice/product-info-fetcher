@@ -1,5 +1,7 @@
 <?php
 
+use Mattiasgeniar\ProductInfoFetcher\Enum\ProductAvailability;
+use Mattiasgeniar\ProductInfoFetcher\Enum\ProductCondition;
 use Mattiasgeniar\ProductInfoFetcher\Parsers\JsonLdParser;
 
 dataset('jsonld_html', [
@@ -12,6 +14,13 @@ dataset('jsonld_html', [
             'priceInCents' => 99900,
             'priceCurrency' => 'USD',
             'imageUrl' => 'https://apple.com/images/iphone-15-pro.jpg',
+            'brand' => 'Apple',
+            'sku' => 'IPHONE15PRO-256-BLK',
+            'gtin' => '0194253392200',
+            'availability' => ProductAvailability::InStock,
+            'condition' => ProductCondition::New,
+            'rating' => 4.8,
+            'reviewCount' => 1250,
         ],
     ],
     'partial product' => [
@@ -23,6 +32,13 @@ dataset('jsonld_html', [
             'priceInCents' => 4999,
             'priceCurrency' => null,
             'imageUrl' => null,
+            'brand' => null,
+            'sku' => null,
+            'gtin' => null,
+            'availability' => null,
+            'condition' => null,
+            'rating' => null,
+            'reviewCount' => null,
         ],
     ],
     'product with image array' => [
@@ -34,6 +50,13 @@ dataset('jsonld_html', [
             'priceInCents' => 2999,
             'priceCurrency' => 'EUR',
             'imageUrl' => 'https://example.com/image1.jpg',
+            'brand' => null,
+            'sku' => null,
+            'gtin' => null,
+            'availability' => null,
+            'condition' => null,
+            'rating' => null,
+            'reviewCount' => null,
         ],
     ],
     'product with ImageObject' => [
@@ -45,6 +68,13 @@ dataset('jsonld_html', [
             'priceInCents' => 1500,
             'priceCurrency' => 'GBP',
             'imageUrl' => 'https://example.com/structured-image.jpg',
+            'brand' => null,
+            'sku' => null,
+            'gtin' => null,
+            'availability' => null,
+            'condition' => null,
+            'rating' => null,
+            'reviewCount' => null,
         ],
     ],
     'product in @graph' => [
@@ -56,6 +86,13 @@ dataset('jsonld_html', [
             'priceInCents' => 19900,
             'priceCurrency' => 'USD',
             'imageUrl' => 'https://example.com/graph.jpg',
+            'brand' => null,
+            'sku' => null,
+            'gtin' => null,
+            'availability' => null,
+            'condition' => null,
+            'rating' => null,
+            'reviewCount' => null,
         ],
     ],
     'event - not a product' => [
@@ -67,6 +104,13 @@ dataset('jsonld_html', [
             'priceInCents' => null,
             'priceCurrency' => null,
             'imageUrl' => null,
+            'brand' => null,
+            'sku' => null,
+            'gtin' => null,
+            'availability' => null,
+            'condition' => null,
+            'rating' => null,
+            'reviewCount' => null,
         ],
     ],
     'no json-ld' => [
@@ -78,6 +122,13 @@ dataset('jsonld_html', [
             'priceInCents' => null,
             'priceCurrency' => null,
             'imageUrl' => null,
+            'brand' => null,
+            'sku' => null,
+            'gtin' => null,
+            'availability' => null,
+            'condition' => null,
+            'rating' => null,
+            'reviewCount' => null,
         ],
     ],
     'malformed json' => [
@@ -89,6 +140,13 @@ dataset('jsonld_html', [
             'priceInCents' => null,
             'priceCurrency' => null,
             'imageUrl' => null,
+            'brand' => null,
+            'sku' => null,
+            'gtin' => null,
+            'availability' => null,
+            'condition' => null,
+            'rating' => null,
+            'reviewCount' => null,
         ],
     ],
 ]);
@@ -101,5 +159,74 @@ it('parses json-ld product data correctly', function (string $fixture, array $ex
         ->and($result->url)->toBe($expected['url'])
         ->and($result->priceInCents)->toBe($expected['priceInCents'])
         ->and($result->priceCurrency)->toBe($expected['priceCurrency'])
-        ->and($result->imageUrl)->toBe($expected['imageUrl']);
+        ->and($result->imageUrl)->toBe($expected['imageUrl'])
+        ->and($result->brand)->toBe($expected['brand'])
+        ->and($result->sku)->toBe($expected['sku'])
+        ->and($result->gtin)->toBe($expected['gtin'])
+        ->and($result->availability)->toBe($expected['availability'])
+        ->and($result->condition)->toBe($expected['condition'])
+        ->and($result->rating)->toBe($expected['rating'])
+        ->and($result->reviewCount)->toBe($expected['reviewCount']);
 })->with('jsonld_html');
+
+it('marks product as complete with core fields even without optional fields', function () {
+    $html = <<<'HTML'
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": "Basic Product",
+            "description": "A product with only core fields",
+            "offers": {
+                "@type": "Offer",
+                "price": "29.99",
+                "priceCurrency": "EUR"
+            }
+        }
+        </script>
+    </head>
+    <body></body>
+    </html>
+    HTML;
+
+    $result = (new JsonLdParser($html))->parse();
+
+    expect($result->isComplete())->toBeTrue()
+        ->and($result->name)->toBe('Basic Product')
+        ->and($result->description)->toBe('A product with only core fields')
+        ->and($result->priceInCents)->toBe(2999)
+        ->and($result->brand)->toBeNull()
+        ->and($result->sku)->toBeNull()
+        ->and($result->gtin)->toBeNull()
+        ->and($result->availability)->toBeNull()
+        ->and($result->condition)->toBeNull()
+        ->and($result->rating)->toBeNull()
+        ->and($result->reviewCount)->toBeNull();
+});
+
+it('extracts brand as string when not nested', function () {
+    $html = <<<'HTML'
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": "Product",
+            "brand": "SimpleBrand",
+            "offers": { "price": "10.00" }
+        }
+        </script>
+    </head>
+    <body></body>
+    </html>
+    HTML;
+
+    $result = (new JsonLdParser($html))->parse();
+
+    expect($result->brand)->toBe('SimpleBrand');
+});
