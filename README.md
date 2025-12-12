@@ -1,22 +1,12 @@
-# When given a product URL, will return structured data of that product, including name, description, price, etc
+# Product Info Fetcher
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/mattiasgeniar/product-info-fetcher.svg?style=flat-square)](https://packagist.org/packages/mattiasgeniar/product-info-fetcher)
 [![Tests](https://img.shields.io/github/actions/workflow/status/mattiasgeniar/product-info-fetcher/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/mattiasgeniar/product-info-fetcher/actions/workflows/run-tests.yml)
 [![Total Downloads](https://img.shields.io/packagist/dt/mattiasgeniar/product-info-fetcher.svg?style=flat-square)](https://packagist.org/packages/mattiasgeniar/product-info-fetcher)
 
-This is where your description should go. Try and limit it to a paragraph or two. Consider adding a small example.
-
-## Support us
-
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/product-info-fetcher.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/product-info-fetcher)
-
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+A PHP package that fetches product information from any URL and returns structured data. It parses JSON-LD structured data and Open Graph meta tags to extract product details like name, description, price, and images.
 
 ## Installation
-
-You can install the package via composer:
 
 ```bash
 composer require mattiasgeniar/product-info-fetcher
@@ -24,10 +14,71 @@ composer require mattiasgeniar/product-info-fetcher
 
 ## Usage
 
+### Basic
+
 ```php
-$skeleton = new Mattiasgeniar\ProductInfoFetcher();
-echo $skeleton->echoPhrase('Hello, Mattiasgeniar!');
+use Mattiasgeniar\ProductInfoFetcher\ProductInfoFetcherClass;
+
+$product = (new ProductInfoFetcherClass('https://example.com/product'))
+    ->fetchAndParse();
+
+echo $product->name;        // "iPhone 15 Pro"
+echo $product->description; // "The latest iPhone with A17 Pro chip"
+echo $product->price;       // "EUR 999.00"
+echo $product->url;         // "https://example.com/product"
+echo $product->imageUrl;    // "https://example.com/images/iphone.jpg"
 ```
+
+### With Options
+
+```php
+$product = (new ProductInfoFetcherClass('https://example.com/product'))
+    ->setUserAgent('MyApp/1.0 (https://myapp.com)')
+    ->setTimeout(10)
+    ->setConnectTimeout(5)
+    ->setAcceptLanguage('nl-BE,nl;q=0.9,en;q=0.8')
+    ->fetchAndParse();
+```
+
+### Separate Fetch and Parse
+
+```php
+$fetcher = new ProductInfoFetcherClass('https://example.com/product');
+$fetcher->fetch();
+$product = $fetcher->parse();
+```
+
+### Parse Existing HTML
+
+```php
+$product = (new ProductInfoFetcherClass())
+    ->setHtml($html)
+    ->parse();
+```
+
+### Access as Array
+
+```php
+$product = (new ProductInfoFetcherClass($url))->fetchAndParse();
+
+$data = $product->toArray();
+// [
+//     'name' => 'iPhone 15 Pro',
+//     'description' => 'The latest iPhone...',
+//     'url' => 'https://example.com/product',
+//     'price' => 'EUR 999.00',
+//     'imageUrl' => 'https://example.com/image.jpg',
+// ]
+```
+
+## How It Works
+
+The package attempts to extract product information in the following order:
+
+1. **JSON-LD** - Looks for `<script type="application/ld+json">` with `@type: Product`
+2. **Meta Tags** - Falls back to Open Graph (`og:`), Twitter Cards (`twitter:`), and standard meta tags
+
+If the first parser returns complete data (name, description, and price), it returns immediately. Otherwise, it merges results from multiple parsers.
 
 ## Testing
 

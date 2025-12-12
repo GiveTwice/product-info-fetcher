@@ -31,3 +31,24 @@ psalm.xml
 testbench.yaml
 /docs
 /coverage
+
+# AI noise
+.claude/
+.cursor/
+.cursorrules
+.cursorignore
+.windsurf/
+.windsurfrules
+.aider.conf.yml
+.aider/
+.aiderignore
+.clinerules
+.cline/
+.codex/
+.rulebook-ai/
+CLAUDE.md
+CLAUDE.local.md
+GEMINI.md
+JULES.md
+AGENTS.md
+.aiignore
