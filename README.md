@@ -22,12 +22,37 @@ use Mattiasgeniar\ProductInfoFetcher\ProductInfoFetcherClass;
 $product = (new ProductInfoFetcherClass('https://example.com/product'))
     ->fetchAndParse();
 
-echo $product->name;        // "iPhone 15 Pro"
-echo $product->description; // "The latest iPhone with A17 Pro chip"
-echo $product->price;       // "EUR 999.00"
-echo $product->url;         // "https://example.com/product"
-echo $product->imageUrl;    // "https://example.com/images/iphone.jpg"
+echo $product->name;          // "iPhone 15 Pro"
+echo $product->description;   // "The latest iPhone with A17 Pro chip"
+echo $product->priceInCents;  // 99900
+echo $product->priceCurrency; // "USD"
+echo $product->url;           // "https://example.com/product"
+echo $product->imageUrl;      // "https://example.com/images/iphone.jpg"
+
+// For display purposes
+echo $product->getFormattedPrice(); // "USD 999.00"
 ```
+
+### Pricing
+
+Prices are stored as integers in cents to avoid floating-point precision issues. This follows the same approach used by payment systems like Stripe.
+
+```php
+$product->priceInCents;  // 139099 (integer)
+$product->priceCurrency; // "EUR" (ISO 4217 currency code)
+
+// For display
+$product->getFormattedPrice(); // "EUR 1390.99"
+
+// For calculations (no floating-point issues)
+$total = $product->priceInCents * $quantity;
+$displayPrice = number_format($total / 100, 2);
+```
+
+The parser automatically normalizes various price formats:
+- String prices: `"999.00"` → `99900`
+- Integer prices: `1479` → `147900`
+- European format: `"1.234,56"` → `123456`
 
 ### With Options
 
@@ -66,19 +91,34 @@ $data = $product->toArray();
 //     'name' => 'iPhone 15 Pro',
 //     'description' => 'The latest iPhone...',
 //     'url' => 'https://example.com/product',
-//     'price' => 'EUR 999.00',
+//     'priceInCents' => 99900,
+//     'priceCurrency' => 'USD',
 //     'imageUrl' => 'https://example.com/image.jpg',
 // ]
+```
+
+### Check Completeness
+
+```php
+if ($product->isComplete()) {
+    // Product has name, description, and price
+}
 ```
 
 ## How It Works
 
 The package attempts to extract product information in the following order:
 
-1. **JSON-LD** - Looks for `<script type="application/ld+json">` with `@type: Product`
+1. **JSON-LD** - Looks for `<script type="application/ld+json">` with `@type: Product` or `@type: ProductGroup`
 2. **Meta Tags** - Falls back to Open Graph (`og:`), Twitter Cards (`twitter:`), and standard meta tags
 
 If the first parser returns complete data (name, description, and price), it returns immediately. Otherwise, it merges results from multiple parsers.
+
+### Supported Structures
+
+- **schema.org Product** - Standard product markup with `offers.price` and `offers.priceCurrency`
+- **schema.org ProductGroup** - Product variants (e.g., bol.com) with `hasVariant[]`
+- **Open Graph** - `product:price:amount` and `product:price:currency` meta tags
 
 ## Testing
 
