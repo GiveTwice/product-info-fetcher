@@ -6,7 +6,7 @@ use Mattiasgeniar\ProductInfoFetcher\DataTransferObjects\ProductInfo;
 use Mattiasgeniar\ProductInfoFetcher\Enum\ProductAvailability;
 use Mattiasgeniar\ProductInfoFetcher\Enum\ProductCondition;
 
-class JsonLdParser
+class JsonLdParser implements ParserInterface
 {
     public function __construct(
         private readonly string $html,
@@ -25,13 +25,16 @@ class JsonLdParser
         $offerData = $this->extractOfferData($productData);
         $ratingData = $this->extractRatingData($productData);
 
+        $allImages = $this->extractAllImages($productData);
+
         return new ProductInfo(
             name: $productData['name'] ?? null,
             description: $productData['description'] ?? null,
             url: $productData['url'] ?? null,
             priceInCents: $priceData['priceInCents'],
             priceCurrency: $priceData['priceCurrency'],
-            imageUrl: $this->extractImage($productData),
+            imageUrl: $allImages[0] ?? null,
+            allImageUrls: $allImages,
             brand: $this->extractBrand($productData),
             sku: $productData['sku'] ?? null,
             gtin: $this->extractGtin($productData),
@@ -166,29 +169,36 @@ class JsonLdParser
         return str_contains(strtolower((string) $availability), 'instock');
     }
 
-    private function extractImage(array $data): ?string
+    private function extractAllImages(array $data): array
     {
         if (! isset($data['image'])) {
-            return null;
+            return [];
         }
 
         $image = $data['image'];
 
         if (is_string($image)) {
-            return $image;
+            return [$image];
         }
 
-        if (is_array($image)) {
-            if (isset($image['url'])) {
-                return $image['url'];
-            }
+        if (! is_array($image)) {
+            return [];
+        }
 
-            if (isset($image[0])) {
-                return is_string($image[0]) ? $image[0] : ($image[0]['url'] ?? null);
+        if (isset($image['url'])) {
+            return [$image['url']];
+        }
+
+        $images = [];
+        foreach ($image as $img) {
+            if (is_string($img)) {
+                $images[] = $img;
+            } elseif (is_array($img) && isset($img['url'])) {
+                $images[] = $img['url'];
             }
         }
 
-        return null;
+        return $images;
     }
 
     private function extractPriceData(array $data): array

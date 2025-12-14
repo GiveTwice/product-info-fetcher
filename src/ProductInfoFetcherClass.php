@@ -138,21 +138,36 @@ class ProductInfoFetcherClass
     private function parseHtml(string $html): ProductInfo
     {
         $jsonLdResult = (new JsonLdParser($html, $this->url))->parse();
+        $metaTagResult = (new MetaTagParser($html, $this->url))->parse();
+
         if ($jsonLdResult->isComplete()) {
+            $this->appendImages($jsonLdResult, $metaTagResult);
+
             return $jsonLdResult;
         }
 
-        $metaTagResult = (new MetaTagParser($html))->parse();
         if ($metaTagResult->isComplete()) {
+            $this->appendImages($metaTagResult, $jsonLdResult);
+
             return $metaTagResult;
         }
 
         return $this->mergeResults($jsonLdResult, $metaTagResult);
     }
 
+    private function appendImages(ProductInfo $target, ProductInfo $source): void
+    {
+        foreach ($source->allImageUrls as $imageUrl) {
+            if (! in_array($imageUrl, $target->allImageUrls, true)) {
+                $target->allImageUrls[] = $imageUrl;
+            }
+        }
+    }
+
     private function mergeResults(ProductInfo ...$results): ProductInfo
     {
         $merged = new ProductInfo;
+        $allImages = [];
 
         foreach ($results as $result) {
             $merged->name = $merged->name ?? $result->name;
@@ -168,7 +183,15 @@ class ProductInfoFetcherClass
             $merged->condition = $merged->condition ?? $result->condition;
             $merged->rating = $merged->rating ?? $result->rating;
             $merged->reviewCount = $merged->reviewCount ?? $result->reviewCount;
+
+            foreach ($result->allImageUrls as $imageUrl) {
+                if (! in_array($imageUrl, $allImages, true)) {
+                    $allImages[] = $imageUrl;
+                }
+            }
         }
+
+        $merged->allImageUrls = $allImages;
 
         return $merged;
     }

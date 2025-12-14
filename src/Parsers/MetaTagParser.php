@@ -8,12 +8,13 @@ use Mattiasgeniar\ProductInfoFetcher\DataTransferObjects\ProductInfo;
 use Mattiasgeniar\ProductInfoFetcher\Enum\ProductAvailability;
 use Mattiasgeniar\ProductInfoFetcher\Enum\ProductCondition;
 
-class MetaTagParser
+class MetaTagParser implements ParserInterface
 {
     private DOMXPath $xpath;
 
     public function __construct(
         private readonly string $html,
+        private readonly ?string $currentUrl = null,
     ) {
         libxml_use_internal_errors(true);
 
@@ -26,13 +27,16 @@ class MetaTagParser
 
     public function parse(): ProductInfo
     {
+        $allImages = $this->extractAllImages();
+
         return new ProductInfo(
             name: $this->extractName(),
             description: $this->extractDescription(),
             url: $this->extractUrl(),
             priceInCents: $this->extractPriceInCents(),
             priceCurrency: $this->extractPriceCurrency(),
-            imageUrl: $this->extractImage(),
+            imageUrl: $allImages[0] ?? null,
+            allImageUrls: $allImages,
             brand: $this->extractMetaContent('product:brand'),
             sku: $this->extractMetaContent('product:retailer_item_id'),
             availability: ProductAvailability::fromString($this->extractMetaContent('product:availability')),
@@ -91,10 +95,21 @@ class MetaTagParser
         return $this->extractMetaContent('product:price:currency');
     }
 
-    private function extractImage(): ?string
+    private function extractAllImages(): array
     {
-        return $this->extractMetaContent('og:image')
-            ?? $this->extractMetaContent('twitter:image');
+        $images = [];
+
+        $ogImage = $this->extractMetaContent('og:image');
+        if ($ogImage !== null) {
+            $images[] = $ogImage;
+        }
+
+        $twitterImage = $this->extractMetaContent('twitter:image');
+        if ($twitterImage !== null && $twitterImage !== $ogImage) {
+            $images[] = $twitterImage;
+        }
+
+        return $images;
     }
 
     private function extractMetaContent(string $property): ?string

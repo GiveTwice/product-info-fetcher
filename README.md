@@ -29,6 +29,7 @@ echo $product->priceInCents;  // 99900
 echo $product->priceCurrency; // "USD"
 echo $product->url;           // "https://example.com/product"
 echo $product->imageUrl;      // "https://example.com/images/iphone.jpg"
+echo $product->allImageUrls;  // ["https://...", "https://..."] (all found images)
 
 // Additional fields
 echo $product->brand;         // "Apple"
@@ -94,6 +95,21 @@ if ($product->availability === ProductAvailability::InStock) {
 $product->availability?->value; // "InStock"
 ```
 
+### Multiple Images
+
+The `imageUrl` field contains the primary image (first found). The `allImageUrls` array contains all unique images found across all sources (JSON-LD and meta tags):
+
+```php
+$product->imageUrl;      // Primary image (first found)
+$product->allImageUrls;  // All unique images from all sources
+
+// Example: different resolutions from different sources
+// [0] "http://example.com/product-370x370.jpg"  (from JSON-LD)
+// [1] "//example.com/product-big.jpg"           (from og:image)
+```
+
+This is useful when sources provide different image sizes or when you want fallback options.
+
 ### With Options
 
 ```php
@@ -134,6 +150,7 @@ $data = $product->toArray();
 //     'priceInCents' => 99900,
 //     'priceCurrency' => 'USD',
 //     'imageUrl' => 'https://example.com/image.jpg',
+//     'allImageUrls' => ['https://...', 'https://...'],
 //     'brand' => 'Apple',
 //     'sku' => 'IPHONE15PRO-256',
 //     'gtin' => '0194253392200',
