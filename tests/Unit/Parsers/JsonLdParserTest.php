@@ -23,6 +23,24 @@ dataset('jsonld_html', [
             'reviewCount' => 1250,
         ],
     ],
+    'product with full URL types' => [
+        'fixture' => 'JsonLd/product-with-full-url-types.html',
+        'expected' => [
+            'name' => 'Windproof Winter Gloves',
+            'description' => 'Premium cycling gloves for cold weather',
+            'url' => 'https://example.com/gloves',
+            'priceInCents' => 5000,
+            'priceCurrency' => 'EUR',
+            'imageUrl' => 'https://example.com/gloves.jpg',
+            'brand' => 'GripGrab',
+            'sku' => null,
+            'gtin' => null,
+            'availability' => ProductAvailability::InStock,
+            'condition' => ProductCondition::New,
+            'rating' => 4.5,
+            'reviewCount' => 4,
+        ],
+    ],
     'partial product' => [
         'fixture' => 'JsonLd/partial-product.html',
         'expected' => [

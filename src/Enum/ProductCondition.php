@@ -4,6 +4,8 @@ namespace Mattiasgeniar\ProductInfoFetcher\Enum;
 
 enum ProductCondition: string
 {
+    use NormalizesSchemaValues;
+
     case New = 'New';
     case Used = 'Used';
     case Refurbished = 'Refurbished';
@@ -15,7 +17,7 @@ enum ProductCondition: string
             return null;
         }
 
-        $value = strtolower($value);
+        $value = self::normalizeSchemaValue($value);
 
         return match (true) {
             str_contains($value, 'new') => self::New,

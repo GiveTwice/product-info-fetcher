@@ -4,6 +4,8 @@ namespace Mattiasgeniar\ProductInfoFetcher\Enum;
 
 enum ProductAvailability: string
 {
+    use NormalizesSchemaValues;
+
     case InStock = 'InStock';
     case OutOfStock = 'OutOfStock';
     case PreOrder = 'PreOrder';
@@ -16,7 +18,7 @@ enum ProductAvailability: string
             return null;
         }
 
-        $value = strtolower($value);
+        $value = self::normalizeSchemaValue($value);
 
         return match (true) {
             str_contains($value, 'instock') => self::InStock,

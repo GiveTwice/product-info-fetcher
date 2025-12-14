@@ -167,6 +167,8 @@ If the first parser returns complete data (name, description, and price), it ret
 - **schema.org ProductGroup** - Product variants (e.g., bol.com) with `hasVariant[]`
 - **Open Graph** - `og:title`, `og:description`, `og:image`, `product:price:amount`, `product:price:currency`, `product:availability`, `product:condition`
 
+Both short (`"@type": "Product"`) and full URL (`"@type": "http://schema.org/Product"`) formats are supported for all schema.org types.
+
 ### Meta Tag Fallback Chain
 
 When JSON-LD is unavailable, the parser tries multiple sources:

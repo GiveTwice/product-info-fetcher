@@ -80,24 +80,36 @@ class JsonLdParser
 
     private function isProductType(array $data): bool
     {
-        $type = $data['@type'] ?? null;
-
-        if (is_array($type)) {
-            return in_array('Product', $type, true);
-        }
-
-        return $type === 'Product';
+        return $this->matchesSchemaType($data['@type'] ?? null, 'Product');
     }
 
     private function isProductGroupType(array $data): bool
     {
-        $type = $data['@type'] ?? null;
+        return $this->matchesSchemaType($data['@type'] ?? null, 'ProductGroup');
+    }
 
-        if (is_array($type)) {
-            return in_array('ProductGroup', $type, true);
+    private function matchesSchemaType(mixed $type, string $expected): bool
+    {
+        if ($type === null) {
+            return false;
         }
 
-        return $type === 'ProductGroup';
+        if (is_array($type)) {
+            foreach ($type as $t) {
+                if ($this->normalizeSchemaType($t) === $expected) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return $this->normalizeSchemaType($type) === $expected;
+    }
+
+    private function normalizeSchemaType(string $type): string
+    {
+        return str_replace(['http://schema.org/', 'https://schema.org/'], '', $type);
     }
 
     private function extractFromProductGroup(array $productGroup): ?array
