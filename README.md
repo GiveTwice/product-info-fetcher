@@ -167,6 +167,15 @@ If the first parser returns complete data (name, description, and price), it ret
 - **schema.org ProductGroup** - Product variants (e.g., bol.com) with `hasVariant[]`
 - **Open Graph** - `og:title`, `og:description`, `og:image`, `product:price:amount`, `product:price:currency`, `product:availability`, `product:condition`
 
+### Meta Tag Fallback Chain
+
+When JSON-LD is unavailable, the parser tries multiple sources:
+
+- **name**: `og:title` → `twitter:title` → `<title>`
+- **description**: `og:description` → `twitter:description` → `<meta name="description">`
+- **image**: `og:image` → `twitter:image`
+- **url**: `<link rel="canonical">` → `og:url`
+
 ## Testing
 
 ```bash

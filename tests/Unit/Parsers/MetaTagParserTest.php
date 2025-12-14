@@ -83,8 +83,23 @@ dataset('metatag_html', [
     'no meta tags' => [
         'fixture' => 'MetaTags/no-meta-tags.html',
         'expected' => [
-            'name' => null,
+            'name' => 'Page without meta tags',
             'description' => null,
+            'url' => null,
+            'priceInCents' => null,
+            'priceCurrency' => null,
+            'imageUrl' => null,
+            'brand' => null,
+            'sku' => null,
+            'availability' => null,
+            'condition' => null,
+        ],
+    ],
+    'title and description fallback' => [
+        'fixture' => 'JsonLd/no-jsonld.html',
+        'expected' => [
+            'name' => 'Just a regular page',
+            'description' => 'Nothing special here',
             'url' => null,
             'priceInCents' => null,
             'priceCurrency' => null,

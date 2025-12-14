@@ -26,8 +26,7 @@ class ProductInfo
     public function isComplete(): bool
     {
         return $this->name !== null
-            && $this->description !== null
-            && $this->priceInCents !== null;
+            && $this->description !== null;
     }
 
     public function getFormattedPrice(): ?string

@@ -43,7 +43,19 @@ class MetaTagParser
     private function extractName(): ?string
     {
         return $this->extractMetaContent('og:title')
-            ?? $this->extractMetaContent('twitter:title');
+            ?? $this->extractMetaContent('twitter:title')
+            ?? $this->extractTitle();
+    }
+
+    private function extractTitle(): ?string
+    {
+        $title = $this->xpath->query('//title');
+
+        if ($title && $title->length > 0) {
+            return trim($title->item(0)->nodeValue);
+        }
+
+        return null;
     }
 
     private function extractDescription(): ?string
