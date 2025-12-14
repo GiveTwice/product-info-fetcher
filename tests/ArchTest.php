@@ -7,9 +7,11 @@ it('will not use debugging functions')
     ->not->toBeUsed();
 
 it('ensures all parsers implement ParserInterface', function () {
-    expect(Mattiasgeniar\ProductInfoFetcher\Parsers\JsonLdParser::class)
-        ->toImplement(ParserInterface::class);
+    $parserFiles = glob(__DIR__.'/../src/Parsers/*Parser.php');
 
-    expect(Mattiasgeniar\ProductInfoFetcher\Parsers\MetaTagParser::class)
-        ->toImplement(ParserInterface::class);
+    foreach ($parserFiles as $file) {
+        $className = 'Mattiasgeniar\\ProductInfoFetcher\\Parsers\\'.basename($file, '.php');
+
+        expect($className)->toImplement(ParserInterface::class);
+    }
 });
