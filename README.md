@@ -59,10 +59,40 @@ $total = $product->priceInCents * $quantity;
 $displayPrice = number_format($total / 100, 2);
 ```
 
-The parser automatically normalizes various price formats:
+The parser normalizes various price formats:
 - String prices: `"999.00"` → `99900`
 - Integer prices: `1479` → `147900`
 - European format: `"1.234,56"` → `123456`
+
+### Availability & Condition
+
+The `availability` and `condition` fields return enum instances:
+
+```php
+use Mattiasgeniar\ProductInfoFetcher\Enum\ProductAvailability;
+use Mattiasgeniar\ProductInfoFetcher\Enum\ProductCondition;
+
+// Availability values
+ProductAvailability::InStock
+ProductAvailability::OutOfStock
+ProductAvailability::PreOrder
+ProductAvailability::BackOrder
+ProductAvailability::Discontinued
+
+// Condition values
+ProductCondition::New
+ProductCondition::Used
+ProductCondition::Refurbished
+ProductCondition::Damaged
+
+// Usage
+if ($product->availability === ProductAvailability::InStock) {
+    // Product is available
+}
+
+// Get string value
+$product->availability?->value; // "InStock"
+```
 
 ### With Options
 
@@ -104,6 +134,13 @@ $data = $product->toArray();
 //     'priceInCents' => 99900,
 //     'priceCurrency' => 'USD',
 //     'imageUrl' => 'https://example.com/image.jpg',
+//     'brand' => 'Apple',
+//     'sku' => 'IPHONE15PRO-256',
+//     'gtin' => '0194253392200',
+//     'availability' => 'InStock',
+//     'condition' => 'New',
+//     'rating' => 4.8,
+//     'reviewCount' => 1250,
 // ]
 ```
 
@@ -126,9 +163,9 @@ If the first parser returns complete data (name, description, and price), it ret
 
 ### Supported Structures
 
-- **schema.org Product** - Standard product markup with `offers.price` and `offers.priceCurrency`
+- **schema.org Product** - Standard product markup including `offers`, `brand`, `sku`, `gtin`, `aggregateRating`
 - **schema.org ProductGroup** - Product variants (e.g., bol.com) with `hasVariant[]`
-- **Open Graph** - `product:price:amount` and `product:price:currency` meta tags
+- **Open Graph** - `og:title`, `og:description`, `og:image`, `product:price:amount`, `product:price:currency`, `product:availability`, `product:condition`
 
 ## Testing
 
