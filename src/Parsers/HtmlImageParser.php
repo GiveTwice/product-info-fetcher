@@ -9,6 +9,8 @@ use Mattiasgeniar\ProductInfoFetcher\DataTransferObjects\ProductInfo;
 
 class HtmlImageParser implements ParserInterface
 {
+    use EscapesXPath;
+
     private DOMXPath $xpath;
 
     public function __construct(
@@ -202,18 +204,5 @@ class HtmlImageParser implements ParserInterface
         }
 
         return true;
-    }
-
-    private function escapeXPathString(string $value): string
-    {
-        if (! str_contains($value, "'")) {
-            return "'{$value}'";
-        }
-
-        if (! str_contains($value, '"')) {
-            return "\"{$value}\"";
-        }
-
-        return "concat('".str_replace("'", "',\"'\",'", $value)."')";
     }
 }

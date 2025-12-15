@@ -10,6 +10,7 @@ use Mattiasgeniar\ProductInfoFetcher\Enum\ProductCondition;
 
 class MetaTagParser implements ParserInterface
 {
+    use EscapesXPath;
     use NormalizesPrices;
 
     private DOMXPath $xpath;
@@ -129,18 +130,5 @@ class MetaTagParser implements ParserInterface
         }
 
         return null;
-    }
-
-    private function escapeXPathString(string $value): string
-    {
-        if (! str_contains($value, "'")) {
-            return "'{$value}'";
-        }
-
-        if (! str_contains($value, '"')) {
-            return "\"{$value}\"";
-        }
-
-        return "concat('".str_replace("'", "',\"'\",'", $value)."')";
     }
 }
