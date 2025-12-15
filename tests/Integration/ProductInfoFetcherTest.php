@@ -1,9 +1,9 @@
 <?php
 
-use Mattiasgeniar\ProductInfoFetcher\ProductInfoFetcherClass;
+use Mattiasgeniar\ProductInfoFetcher\ProductInfoFetcher;
 
 it('fetches and parses a real product page', function () {
-    $result = (new ProductInfoFetcherClass('https://request-mirror.ohdear.app/examples/product-info-page'))
+    $result = (new ProductInfoFetcher('https://request-mirror.ohdear.app/examples/product-info-page'))
         ->fetchAndParse();
 
     expect($result->name)->toBe('Oh Dear Subscription')
@@ -14,7 +14,7 @@ it('fetches and parses a real product page', function () {
 });
 
 it('falls back to meta tags for non-product json-ld types', function () {
-    $result = (new ProductInfoFetcherClass('https://request-mirror.ohdear.app/examples/recipe'))
+    $result = (new ProductInfoFetcher('https://request-mirror.ohdear.app/examples/recipe'))
         ->fetchAndParse();
 
     expect($result->name)->toBe('Recipe: The perfect website monitoring stack')
@@ -25,7 +25,7 @@ it('falls back to meta tags for non-product json-ld types', function () {
 });
 
 it('can fetch and parse separately', function () {
-    $fetcher = new ProductInfoFetcherClass('https://request-mirror.ohdear.app/examples/product-info-page');
+    $fetcher = new ProductInfoFetcher('https://request-mirror.ohdear.app/examples/product-info-page');
 
     $fetcher->fetch();
     $result = $fetcher->parse();
@@ -39,7 +39,7 @@ it('sends custom user agent header', function () {
     $history = [];
     $client = createMockClient($history);
 
-    (new ProductInfoFetcherClass('https://example.com/product'))
+    (new ProductInfoFetcher('https://example.com/product'))
         ->setClient($client)
         ->setUserAgent('CustomBot/1.0')
         ->fetch();
@@ -55,7 +55,7 @@ it('sends default headers', function () {
     $history = [];
     $client = createMockClient($history);
 
-    (new ProductInfoFetcherClass('https://example.com/product'))
+    (new ProductInfoFetcher('https://example.com/product'))
         ->setClient($client)
         ->fetch();
 
@@ -70,7 +70,7 @@ it('sends custom accept-language header', function () {
     $history = [];
     $client = createMockClient($history);
 
-    (new ProductInfoFetcherClass('https://example.com/product'))
+    (new ProductInfoFetcher('https://example.com/product'))
         ->setClient($client)
         ->setAcceptLanguage('nl-BE,nl;q=0.9,en;q=0.8')
         ->fetch();
@@ -84,7 +84,7 @@ it('sends simple language code', function () {
     $history = [];
     $client = createMockClient($history);
 
-    (new ProductInfoFetcherClass('https://example.com/product'))
+    (new ProductInfoFetcher('https://example.com/product'))
         ->setClient($client)
         ->setAcceptLanguage('de')
         ->fetch();
@@ -95,7 +95,7 @@ it('sends simple language code', function () {
 });
 
 it('can set custom timeout', function () {
-    $result = (new ProductInfoFetcherClass('https://request-mirror.ohdear.app/examples/product-info-page'))
+    $result = (new ProductInfoFetcher('https://request-mirror.ohdear.app/examples/product-info-page'))
         ->setTimeout(10)
         ->setConnectTimeout(5)
         ->fetchAndParse();

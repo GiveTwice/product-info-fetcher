@@ -11,7 +11,7 @@ use Mattiasgeniar\ProductInfoFetcher\Parsers\JsonLdParser;
 use Mattiasgeniar\ProductInfoFetcher\Parsers\MetaTagParser;
 use RuntimeException;
 
-class ProductInfoFetcherClass
+class ProductInfoFetcher
 {
     private const DEFAULT_TIMEOUT = 5;
 
@@ -136,13 +136,13 @@ class ProductInfoFetcherClass
         $htmlImageResult = (new HtmlImageParser($html))->parse();
 
         if ($jsonLdResult->isComplete()) {
-            $this->appendImages($jsonLdResult, $metaTagResult, $htmlImageResult);
+            $this->appendImagesFromSources($jsonLdResult, $metaTagResult, $htmlImageResult);
 
             return $jsonLdResult;
         }
 
         if ($metaTagResult->isComplete()) {
-            $this->appendImages($metaTagResult, $jsonLdResult, $htmlImageResult);
+            $this->appendImagesFromSources($metaTagResult, $jsonLdResult, $htmlImageResult);
 
             return $metaTagResult;
         }
@@ -150,7 +150,7 @@ class ProductInfoFetcherClass
         return $this->mergeResults($jsonLdResult, $metaTagResult, $htmlImageResult);
     }
 
-    private function appendImages(ProductInfo $target, ProductInfo ...$sources): void
+    private function appendImagesFromSources(ProductInfo $target, ProductInfo ...$sources): void
     {
         foreach ($sources as $source) {
             foreach ($source->allImageUrls as $imageUrl) {
