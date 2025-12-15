@@ -7,6 +7,7 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use Mattiasgeniar\ProductInfoFetcher\DataTransferObjects\ProductInfo;
+use Mattiasgeniar\ProductInfoFetcher\Parsers\HtmlImageParser;
 use Mattiasgeniar\ProductInfoFetcher\Parsers\JsonLdParser;
 use Mattiasgeniar\ProductInfoFetcher\Parsers\MetaTagParser;
 use RuntimeException;
@@ -139,27 +140,30 @@ class ProductInfoFetcherClass
     {
         $jsonLdResult = (new JsonLdParser($html, $this->url))->parse();
         $metaTagResult = (new MetaTagParser($html, $this->url))->parse();
+        $htmlImageResult = (new HtmlImageParser($html))->parse();
 
         if ($jsonLdResult->isComplete()) {
-            $this->appendImages($jsonLdResult, $metaTagResult);
+            $this->appendImages($jsonLdResult, $metaTagResult, $htmlImageResult);
 
             return $jsonLdResult;
         }
 
         if ($metaTagResult->isComplete()) {
-            $this->appendImages($metaTagResult, $jsonLdResult);
+            $this->appendImages($metaTagResult, $jsonLdResult, $htmlImageResult);
 
             return $metaTagResult;
         }
 
-        return $this->mergeResults($jsonLdResult, $metaTagResult);
+        return $this->mergeResults($jsonLdResult, $metaTagResult, $htmlImageResult);
     }
 
-    private function appendImages(ProductInfo $target, ProductInfo $source): void
+    private function appendImages(ProductInfo $target, ProductInfo ...$sources): void
     {
-        foreach ($source->allImageUrls as $imageUrl) {
-            if (! in_array($imageUrl, $target->allImageUrls, true)) {
-                $target->allImageUrls[] = $imageUrl;
+        foreach ($sources as $source) {
+            foreach ($source->allImageUrls as $imageUrl) {
+                if (! in_array($imageUrl, $target->allImageUrls, true)) {
+                    $target->allImageUrls[] = $imageUrl;
+                }
             }
         }
     }

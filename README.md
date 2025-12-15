@@ -4,7 +4,7 @@
 [![Tests](https://img.shields.io/github/actions/workflow/status/mattiasgeniar/product-info-fetcher/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/mattiasgeniar/product-info-fetcher/actions/workflows/run-tests.yml)
 [![Total Downloads](https://img.shields.io/packagist/dt/mattiasgeniar/product-info-fetcher.svg?style=flat-square)](https://packagist.org/packages/mattiasgeniar/product-info-fetcher)
 
-A PHP package that fetches product information from any URL and returns structured data. It parses JSON-LD structured data and Open Graph meta tags to extract product details like name, description, price, and images.
+A PHP package that fetches product information from any URL and returns structured data. It parses JSON-LD structured data, Open Graph meta tags, and HTML image elements to extract product details like name, description, price, and images.
 
 ## Installation
 
@@ -97,7 +97,7 @@ $product->availability?->value; // "InStock"
 
 ### Multiple Images
 
-The `imageUrl` field contains the primary image (first found). The `allImageUrls` array contains all unique images found across all sources (JSON-LD and meta tags):
+The `imageUrl` field contains the primary image (first found). The `allImageUrls` array contains all unique images found across all sources (JSON-LD, meta tags, and HTML image elements):
 
 ```php
 $product->imageUrl;      // Primary image (first found)
@@ -175,8 +175,9 @@ The package attempts to extract product information in the following order:
 
 1. **JSON-LD** - Looks for `<script type="application/ld+json">` with `@type: Product` or `@type: ProductGroup`
 2. **Meta Tags** - Falls back to Open Graph (`og:`), Twitter Cards (`twitter:`), and standard meta tags
+3. **HTML Images** - Extracts product images directly from `<img>` elements using common patterns (Amazon's `landingImage`, product image classes, data attributes)
 
-If the first parser returns complete data (name, description, and price), it returns immediately. Otherwise, it merges results from multiple parsers.
+If the first parser returns complete data (name, description, and price), it returns immediately. Otherwise, it merges results from multiple parsers. Images from all three sources are always combined.
 
 ### Supported Structures
 
@@ -192,8 +193,19 @@ When JSON-LD is unavailable, the parser tries multiple sources:
 
 - **name**: `og:title` → `twitter:title` → `<title>`
 - **description**: `og:description` → `twitter:description` → `<meta name="description">`
-- **image**: `og:image` → `twitter:image`
+- **image**: `og:image` → `twitter:image` → HTML image elements
 - **url**: `<link rel="canonical">` → `og:url`
+
+### HTML Image Extraction
+
+For sites without structured data or meta tags (e.g., Amazon), the package extracts images directly from HTML:
+
+- **Amazon pattern**: `<img id="landingImage">` with `data-old-hires` for high-res images
+- **Common IDs**: `main-image`, `product-image`, `hero-image`
+- **Common classes**: `product-image`, `main-image`, `gallery-image`
+- **Data attributes**: `data-zoom-image`, `data-large-image`, `data-src`
+
+High-resolution images are prioritized when available.
 
 ## Testing
 
