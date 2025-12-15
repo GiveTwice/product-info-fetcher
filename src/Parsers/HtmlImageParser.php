@@ -106,7 +106,8 @@ class HtmlImageParser implements ParserInterface
         ];
 
         foreach ($productImageIds as $id) {
-            $img = $this->xpath->query("//img[@id='{$id}']")->item(0);
+            $escapedId = $this->escapeXPathString($id);
+            $img = $this->xpath->query("//img[@id={$escapedId}]")->item(0);
 
             if ($img instanceof DOMElement) {
                 $images = array_merge($images, $this->extractImageUrls($img));
@@ -129,7 +130,8 @@ class HtmlImageParser implements ParserInterface
         ];
 
         foreach ($classPatterns as $class) {
-            $nodes = $this->xpath->query("//img[contains(@class, '{$class}')]");
+            $escapedClass = $this->escapeXPathString($class);
+            $nodes = $this->xpath->query("//img[contains(@class, {$escapedClass})]");
 
             foreach ($nodes as $node) {
                 if ($node instanceof DOMElement) {
@@ -200,5 +202,18 @@ class HtmlImageParser implements ParserInterface
         }
 
         return true;
+    }
+
+    private function escapeXPathString(string $value): string
+    {
+        if (! str_contains($value, "'")) {
+            return "'{$value}'";
+        }
+
+        if (! str_contains($value, '"')) {
+            return "\"{$value}\"";
+        }
+
+        return "concat('".str_replace("'", "',\"'\",'", $value)."')";
     }
 }

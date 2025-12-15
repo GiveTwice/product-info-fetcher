@@ -6,8 +6,11 @@ trait NormalizesSchemaValues
 {
     private static function normalizeSchemaValue(string $value): string
     {
-        $value = str_replace(['http://schema.org/', 'https://schema.org/'], '', $value);
+        return strtolower(self::stripSchemaOrgPrefix($value));
+    }
 
-        return strtolower($value);
+    public static function stripSchemaOrgPrefix(string $value): string
+    {
+        return str_replace(['http://schema.org/', 'https://schema.org/'], '', $value);
     }
 }

@@ -3,11 +3,15 @@
 namespace Mattiasgeniar\ProductInfoFetcher\Parsers;
 
 use Mattiasgeniar\ProductInfoFetcher\DataTransferObjects\ProductInfo;
+use Mattiasgeniar\ProductInfoFetcher\Enum\NormalizesSchemaValues;
 use Mattiasgeniar\ProductInfoFetcher\Enum\ProductAvailability;
 use Mattiasgeniar\ProductInfoFetcher\Enum\ProductCondition;
 
 class JsonLdParser implements ParserInterface
 {
+    use NormalizesPrices;
+    use NormalizesSchemaValues;
+
     public function __construct(
         private readonly string $html,
         private readonly ?string $currentUrl = null,
@@ -99,7 +103,7 @@ class JsonLdParser implements ParserInterface
 
         if (is_array($type)) {
             foreach ($type as $t) {
-                if ($this->normalizeSchemaType($t) === $expected) {
+                if (self::stripSchemaOrgPrefix($t) === $expected) {
                     return true;
                 }
             }
@@ -107,12 +111,7 @@ class JsonLdParser implements ParserInterface
             return false;
         }
 
-        return $this->normalizeSchemaType($type) === $expected;
-    }
-
-    private function normalizeSchemaType(string $type): string
-    {
-        return str_replace(['http://schema.org/', 'https://schema.org/'], '', $type);
+        return self::stripSchemaOrgPrefix($type) === $expected;
     }
 
     private function extractFromProductGroup(array $productGroup): ?array
@@ -230,32 +229,6 @@ class JsonLdParser implements ParserInterface
             'priceInCents' => null,
             'priceCurrency' => null,
         ];
-    }
-
-    private function normalizePriceToCents(mixed $price): int
-    {
-        if (is_int($price)) {
-            return $price * 100;
-        }
-
-        if (is_float($price)) {
-            return (int) round($price * 100);
-        }
-
-        $priceString = (string) $price;
-        $priceString = preg_replace('/[^\d.,]/', '', $priceString);
-
-        $lastDot = strrpos($priceString, '.');
-        $lastComma = strrpos($priceString, ',');
-
-        if ($lastComma !== false && ($lastDot === false || $lastComma > $lastDot)) {
-            $priceString = str_replace('.', '', $priceString);
-            $priceString = str_replace(',', '.', $priceString);
-        } else {
-            $priceString = str_replace(',', '', $priceString);
-        }
-
-        return (int) round((float) $priceString * 100);
     }
 
     private function extractBrand(array $data): ?string

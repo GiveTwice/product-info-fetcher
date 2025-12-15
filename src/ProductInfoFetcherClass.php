@@ -4,7 +4,6 @@ namespace Mattiasgeniar\ProductInfoFetcher;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use Mattiasgeniar\ProductInfoFetcher\DataTransferObjects\ProductInfo;
 use Mattiasgeniar\ProductInfoFetcher\Parsers\HtmlImageParser;
@@ -85,9 +84,6 @@ class ProductInfoFetcherClass
         return $this;
     }
 
-    /**
-     * @throws GuzzleException
-     */
     public function fetch(): self
     {
         if ($this->url === null) {
@@ -128,9 +124,6 @@ class ProductInfoFetcherClass
         return $this->parseHtml($this->html);
     }
 
-    /**
-     * @throws GuzzleException
-     */
     public function fetchAndParse(): ProductInfo
     {
         return $this->fetch()->parse();

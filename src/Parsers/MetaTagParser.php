@@ -10,6 +10,8 @@ use Mattiasgeniar\ProductInfoFetcher\Enum\ProductCondition;
 
 class MetaTagParser implements ParserInterface
 {
+    use NormalizesPrices;
+
     private DOMXPath $xpath;
 
     public function __construct(
@@ -114,12 +116,14 @@ class MetaTagParser implements ParserInterface
 
     private function extractMetaContent(string $property): ?string
     {
-        $propertyNode = $this->xpath->query("//meta[@property='{$property}']/@content");
+        $escapedProperty = $this->escapeXPathString($property);
+
+        $propertyNode = $this->xpath->query("//meta[@property={$escapedProperty}]/@content");
         if ($propertyNode && $propertyNode->length > 0) {
             return trim($propertyNode->item(0)->nodeValue);
         }
 
-        $nameNode = $this->xpath->query("//meta[@name='{$property}']/@content");
+        $nameNode = $this->xpath->query("//meta[@name={$escapedProperty}]/@content");
         if ($nameNode && $nameNode->length > 0) {
             return trim($nameNode->item(0)->nodeValue);
         }
@@ -127,20 +131,16 @@ class MetaTagParser implements ParserInterface
         return null;
     }
 
-    private function normalizePriceToCents(string $price): int
+    private function escapeXPathString(string $value): string
     {
-        $priceString = preg_replace('/[^\d.,]/', '', $price);
-
-        $lastDot = strrpos($priceString, '.');
-        $lastComma = strrpos($priceString, ',');
-
-        if ($lastComma !== false && ($lastDot === false || $lastComma > $lastDot)) {
-            $priceString = str_replace('.', '', $priceString);
-            $priceString = str_replace(',', '.', $priceString);
-        } else {
-            $priceString = str_replace(',', '', $priceString);
+        if (! str_contains($value, "'")) {
+            return "'{$value}'";
         }
 
-        return (int) round((float) $priceString * 100);
+        if (! str_contains($value, '"')) {
+            return "\"{$value}\"";
+        }
+
+        return "concat('".str_replace("'", "',\"'\",'", $value)."')";
     }
 }
