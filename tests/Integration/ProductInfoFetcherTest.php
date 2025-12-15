@@ -1,10 +1,5 @@
 <?php
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
-use GuzzleHttp\Psr7\Response;
 use Mattiasgeniar\ProductInfoFetcher\ProductInfoFetcherClass;
 
 it('fetches and parses a real product page', function () {
@@ -42,34 +37,23 @@ it('can fetch and parse separately', function () {
 
 it('sends custom user agent header', function () {
     $history = [];
-    $mock = new MockHandler([
-        new Response(200, [], '<html><head></head><body></body></html>'),
-    ]);
-
-    $handlerStack = HandlerStack::create($mock);
-    $handlerStack->push(Middleware::history($history));
-
-    $client = new Client(['handler' => $handlerStack]);
+    $client = createMockClient($history);
 
     (new ProductInfoFetcherClass('https://example.com/product'))
         ->setClient($client)
         ->setUserAgent('CustomBot/1.0')
         ->fetch();
 
-    expect($history)->toHaveCount(1)
-        ->and($history[0]['request']->getHeader('User-Agent'))->toBe(['CustomBot/1.0']);
+    expect($history)->toHaveCount(1);
+
+    $request = $history[0]['request'];
+
+    expect($request->getHeader('User-Agent'))->toBe(['CustomBot/1.0']);
 });
 
 it('sends default headers', function () {
     $history = [];
-    $mock = new MockHandler([
-        new Response(200, [], '<html><head></head><body></body></html>'),
-    ]);
-
-    $handlerStack = HandlerStack::create($mock);
-    $handlerStack->push(Middleware::history($history));
-
-    $client = new Client(['handler' => $handlerStack]);
+    $client = createMockClient($history);
 
     (new ProductInfoFetcherClass('https://example.com/product'))
         ->setClient($client)
@@ -84,42 +68,30 @@ it('sends default headers', function () {
 
 it('sends custom accept-language header', function () {
     $history = [];
-    $mock = new MockHandler([
-        new Response(200, [], '<html><head></head><body></body></html>'),
-    ]);
-
-    $handlerStack = HandlerStack::create($mock);
-    $handlerStack->push(Middleware::history($history));
-
-    $client = new Client(['handler' => $handlerStack]);
+    $client = createMockClient($history);
 
     (new ProductInfoFetcherClass('https://example.com/product'))
         ->setClient($client)
         ->setAcceptLanguage('nl-BE,nl;q=0.9,en;q=0.8')
         ->fetch();
 
-    expect($history[0]['request']->getHeader('Accept-Language'))
-        ->toBe(['nl-BE,nl;q=0.9,en;q=0.8']);
+    $request = $history[0]['request'];
+
+    expect($request->getHeader('Accept-Language'))->toBe(['nl-BE,nl;q=0.9,en;q=0.8']);
 });
 
 it('sends simple language code', function () {
     $history = [];
-    $mock = new MockHandler([
-        new Response(200, [], '<html><head></head><body></body></html>'),
-    ]);
-
-    $handlerStack = HandlerStack::create($mock);
-    $handlerStack->push(Middleware::history($history));
-
-    $client = new Client(['handler' => $handlerStack]);
+    $client = createMockClient($history);
 
     (new ProductInfoFetcherClass('https://example.com/product'))
         ->setClient($client)
         ->setAcceptLanguage('de')
         ->fetch();
 
-    expect($history[0]['request']->getHeader('Accept-Language'))
-        ->toBe(['de']);
+    $request = $history[0]['request'];
+
+    expect($request->getHeader('Accept-Language'))->toBe(['de']);
 });
 
 it('can set custom timeout', function () {
