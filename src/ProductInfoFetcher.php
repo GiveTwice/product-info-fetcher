@@ -2,13 +2,13 @@
 
 namespace GiveTwice\ProductInfoFetcher;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
-use GuzzleHttp\RequestOptions;
 use GiveTwice\ProductInfoFetcher\DataTransferObjects\ProductInfo;
 use GiveTwice\ProductInfoFetcher\Parsers\HtmlImageParser;
 use GiveTwice\ProductInfoFetcher\Parsers\JsonLdParser;
 use GiveTwice\ProductInfoFetcher\Parsers\MetaTagParser;
+use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\RequestOptions;
 use RuntimeException;
 
 class ProductInfoFetcher
