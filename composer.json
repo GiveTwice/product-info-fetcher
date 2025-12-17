@@ -1,11 +1,11 @@
 {
-    "name": "mattiasgeniar/product-info-fetcher",
+    "name": "givetwice/product-info-fetcher",
     "description": "When given a product URL, will return structured data of that product, including name, description, price, etc",
     "keywords": [
-        "mattiasgeniar",
+        "givetwice",
         "product-info-fetcher"
     ],
-    "homepage": "https://github.com/mattiasgeniar/product-info-fetcher",
+    "homepage": "https://github.com/GiveTwice/product-info-fetcher",
     "license": "MIT",
     "authors": [
         {
@@ -25,12 +25,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Mattiasgeniar\\ProductInfoFetcher\\": "src"
+            "GiveTwice\\ProductInfoFetcher\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Mattiasgeniar\\ProductInfoFetcher\\Tests\\": "tests"
+            "GiveTwice\\ProductInfoFetcher\\Tests\\": "tests"
         }
     },
     "scripts": {

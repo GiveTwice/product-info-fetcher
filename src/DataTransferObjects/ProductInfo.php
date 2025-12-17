@@ -1,9 +1,9 @@
 <?php
 
-namespace Mattiasgeniar\ProductInfoFetcher\DataTransferObjects;
+namespace GiveTwice\ProductInfoFetcher\DataTransferObjects;
 
-use Mattiasgeniar\ProductInfoFetcher\Enum\ProductAvailability;
-use Mattiasgeniar\ProductInfoFetcher\Enum\ProductCondition;
+use GiveTwice\ProductInfoFetcher\Enum\ProductAvailability;
+use GiveTwice\ProductInfoFetcher\Enum\ProductCondition;
 
 class ProductInfo
 {

@@ -1,11 +1,11 @@
 <?php
 
-namespace Mattiasgeniar\ProductInfoFetcher\Parsers;
+namespace GiveTwice\ProductInfoFetcher\Parsers;
 
-use Mattiasgeniar\ProductInfoFetcher\DataTransferObjects\ProductInfo;
-use Mattiasgeniar\ProductInfoFetcher\Enum\NormalizesSchemaValues;
-use Mattiasgeniar\ProductInfoFetcher\Enum\ProductAvailability;
-use Mattiasgeniar\ProductInfoFetcher\Enum\ProductCondition;
+use GiveTwice\ProductInfoFetcher\DataTransferObjects\ProductInfo;
+use GiveTwice\ProductInfoFetcher\Enum\NormalizesSchemaValues;
+use GiveTwice\ProductInfoFetcher\Enum\ProductAvailability;
+use GiveTwice\ProductInfoFetcher\Enum\ProductCondition;
 
 class JsonLdParser implements ParserInterface
 {

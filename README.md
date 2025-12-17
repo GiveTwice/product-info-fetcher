@@ -1,15 +1,15 @@
 # Product Info Fetcher
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/mattiasgeniar/product-info-fetcher.svg?style=flat-square)](https://packagist.org/packages/mattiasgeniar/product-info-fetcher)
-[![Tests](https://img.shields.io/github/actions/workflow/status/mattiasgeniar/product-info-fetcher/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/mattiasgeniar/product-info-fetcher/actions/workflows/run-tests.yml)
-[![Total Downloads](https://img.shields.io/packagist/dt/mattiasgeniar/product-info-fetcher.svg?style=flat-square)](https://packagist.org/packages/mattiasgeniar/product-info-fetcher)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/givetwice/product-info-fetcher.svg?style=flat-square)](https://packagist.org/packages/givetwice/product-info-fetcher)
+[![Tests](https://img.shields.io/github/actions/workflow/status/GiveTwice/product-info-fetcher/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/GiveTwice/product-info-fetcher/actions/workflows/run-tests.yml)
+[![Total Downloads](https://img.shields.io/packagist/dt/givetwice/product-info-fetcher.svg?style=flat-square)](https://packagist.org/packages/givetwice/product-info-fetcher)
 
 A PHP package that fetches product information from any URL and returns structured data. It parses JSON-LD structured data, Open Graph meta tags, and HTML image elements to extract product details like name, description, price, and images.
 
 ## Installation
 
 ```bash
-composer require mattiasgeniar/product-info-fetcher
+composer require givetwice/product-info-fetcher
 ```
 
 ## Usage
@@ -17,7 +17,7 @@ composer require mattiasgeniar/product-info-fetcher
 ### Basic
 
 ```php
-use Mattiasgeniar\ProductInfoFetcher\ProductInfoFetcherClass;
+use GiveTwice\ProductInfoFetcher\ProductInfoFetcherClass;
 
 $product = (new ProductInfoFetcherClass('https://example.com/product'))
     ->fetchAndParse();
@@ -70,8 +70,8 @@ The parser normalizes various price formats:
 The `availability` and `condition` fields return enum instances:
 
 ```php
-use Mattiasgeniar\ProductInfoFetcher\Enum\ProductAvailability;
-use Mattiasgeniar\ProductInfoFetcher\Enum\ProductCondition;
+use GiveTwice\ProductInfoFetcher\Enum\ProductAvailability;
+use GiveTwice\ProductInfoFetcher\Enum\ProductCondition;
 
 // Availability values
 ProductAvailability::InStock
@@ -227,7 +227,7 @@ Please review [our security policy](../../security/policy) on how to report secu
 
 ## Credits
 
-- [Mattias Geniar](https://github.com/mattiasgeniar)
+- [GiveTwice](https://github.com/GiveTwice)
 - [All Contributors](../../contributors)
 
 ## License

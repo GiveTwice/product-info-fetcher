@@ -1,8 +1,8 @@
 <?php
 
-use Mattiasgeniar\ProductInfoFetcher\Enum\ProductAvailability;
-use Mattiasgeniar\ProductInfoFetcher\Enum\ProductCondition;
-use Mattiasgeniar\ProductInfoFetcher\Parsers\JsonLdParser;
+use GiveTwice\ProductInfoFetcher\Enum\ProductAvailability;
+use GiveTwice\ProductInfoFetcher\Enum\ProductCondition;
+use GiveTwice\ProductInfoFetcher\Parsers\JsonLdParser;
 
 dataset('jsonld_html', [
     'complete product' => [

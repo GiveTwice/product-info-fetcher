@@ -1,11 +1,11 @@
 <?php
 
-namespace Mattiasgeniar\ProductInfoFetcher\Parsers;
+namespace GiveTwice\ProductInfoFetcher\Parsers;
 
 use DOMDocument;
 use DOMElement;
 use DOMXPath;
-use Mattiasgeniar\ProductInfoFetcher\DataTransferObjects\ProductInfo;
+use GiveTwice\ProductInfoFetcher\DataTransferObjects\ProductInfo;
 
 class HtmlImageParser implements ParserInterface
 {

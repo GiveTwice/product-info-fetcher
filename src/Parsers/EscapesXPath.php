@@ -1,6 +1,6 @@
 <?php
 
-namespace Mattiasgeniar\ProductInfoFetcher\Parsers;
+namespace GiveTwice\ProductInfoFetcher\Parsers;
 
 trait EscapesXPath
 {

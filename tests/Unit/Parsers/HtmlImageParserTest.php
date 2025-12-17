@@ -1,6 +1,6 @@
 <?php
 
-use Mattiasgeniar\ProductInfoFetcher\Parsers\HtmlImageParser;
+use GiveTwice\ProductInfoFetcher\Parsers\HtmlImageParser;
 
 dataset('html_images', [
     'amazon landing image with data-old-hires' => [

@@ -1,8 +1,8 @@
 <?php
 
-namespace Mattiasgeniar\ProductInfoFetcher\Parsers;
+namespace GiveTwice\ProductInfoFetcher\Parsers;
 
-use Mattiasgeniar\ProductInfoFetcher\DataTransferObjects\ProductInfo;
+use GiveTwice\ProductInfoFetcher\DataTransferObjects\ProductInfo;
 
 interface ParserInterface
 {

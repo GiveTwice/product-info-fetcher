@@ -1,6 +1,6 @@
 <?php
 
-namespace Mattiasgeniar\ProductInfoFetcher\Enum;
+namespace GiveTwice\ProductInfoFetcher\Enum;
 
 enum ProductAvailability: string
 {

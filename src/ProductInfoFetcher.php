@@ -1,14 +1,14 @@
 <?php
 
-namespace Mattiasgeniar\ProductInfoFetcher;
+namespace GiveTwice\ProductInfoFetcher;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\RequestOptions;
-use Mattiasgeniar\ProductInfoFetcher\DataTransferObjects\ProductInfo;
-use Mattiasgeniar\ProductInfoFetcher\Parsers\HtmlImageParser;
-use Mattiasgeniar\ProductInfoFetcher\Parsers\JsonLdParser;
-use Mattiasgeniar\ProductInfoFetcher\Parsers\MetaTagParser;
+use GiveTwice\ProductInfoFetcher\DataTransferObjects\ProductInfo;
+use GiveTwice\ProductInfoFetcher\Parsers\HtmlImageParser;
+use GiveTwice\ProductInfoFetcher\Parsers\JsonLdParser;
+use GiveTwice\ProductInfoFetcher\Parsers\MetaTagParser;
 use RuntimeException;
 
 class ProductInfoFetcher

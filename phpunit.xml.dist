@@ -17,7 +17,7 @@
     requireCoverageMetadata="false"
 >
     <testsuites>
-        <testsuite name="Mattiasgeniar Test Suite">
+        <testsuite name="GiveTwice Test Suite">
             <directory>tests</directory>
         </testsuite>
     </testsuites>

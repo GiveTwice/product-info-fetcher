@@ -1,6 +1,6 @@
 <?php
 
-use Mattiasgeniar\ProductInfoFetcher\ProductInfoFetcher;
+use GiveTwice\ProductInfoFetcher\ProductInfoFetcher;
 
 it('fetches and parses a real product page', function () {
     $result = (new ProductInfoFetcher('https://request-mirror.ohdear.app/examples/product-info-page'))

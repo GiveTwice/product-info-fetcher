@@ -1,8 +1,8 @@
 <?php
 
-use Mattiasgeniar\ProductInfoFetcher\Enum\ProductAvailability;
-use Mattiasgeniar\ProductInfoFetcher\Enum\ProductCondition;
-use Mattiasgeniar\ProductInfoFetcher\Parsers\MetaTagParser;
+use GiveTwice\ProductInfoFetcher\Enum\ProductAvailability;
+use GiveTwice\ProductInfoFetcher\Enum\ProductCondition;
+use GiveTwice\ProductInfoFetcher\Parsers\MetaTagParser;
 
 dataset('metatag_html', [
     'complete open graph' => [

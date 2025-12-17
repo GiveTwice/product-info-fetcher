@@ -1,3 +1,3 @@
 <?php
 
-pest()->project()->github('mattiasgeniar/product-info-fetcher');
+pest()->project()->github('GiveTwice/product-info-fetcher');
