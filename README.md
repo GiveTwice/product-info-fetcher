@@ -17,9 +17,9 @@ composer require givetwice/product-info-fetcher
 ### Basic
 
 ```php
-use GiveTwice\ProductInfoFetcher\ProductInfoFetcherClass;
+use GiveTwice\ProductInfoFetcher\ProductInfoFetcher;
 
-$product = (new ProductInfoFetcherClass('https://example.com/product'))
+$product = (new ProductInfoFetcher('https://example.com/product'))
     ->fetchAndParse();
 
 // Core fields
@@ -113,7 +113,7 @@ This is useful when sources provide different image sizes or when you want fallb
 ### With Options
 
 ```php
-$product = (new ProductInfoFetcherClass('https://example.com/product'))
+$product = (new ProductInfoFetcher('https://example.com/product'))
     ->setUserAgent('MyApp/1.0 (https://myapp.com)')
     ->setTimeout(10)
     ->setConnectTimeout(5)
@@ -124,7 +124,7 @@ $product = (new ProductInfoFetcherClass('https://example.com/product'))
 ### Separate Fetch and Parse
 
 ```php
-$fetcher = new ProductInfoFetcherClass('https://example.com/product');
+$fetcher = new ProductInfoFetcher('https://example.com/product');
 $fetcher->fetch();
 $product = $fetcher->parse();
 ```
@@ -132,7 +132,7 @@ $product = $fetcher->parse();
 ### Parse Existing HTML
 
 ```php
-$product = (new ProductInfoFetcherClass())
+$product = (new ProductInfoFetcher())
     ->setHtml($html)
     ->parse();
 ```
@@ -140,7 +140,7 @@ $product = (new ProductInfoFetcherClass())
 ### Access as Array
 
 ```php
-$product = (new ProductInfoFetcherClass($url))->fetchAndParse();
+$product = (new ProductInfoFetcher($url))->fetchAndParse();
 
 $data = $product->toArray();
 // [
