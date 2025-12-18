@@ -165,7 +165,7 @@ $data = $product->toArray();
 
 ```php
 if ($product->isComplete()) {
-    // Product has name, description, and price
+    // Product has name and description
 }
 ```
 
@@ -177,7 +177,7 @@ The package attempts to extract product information in the following order:
 2. **Meta Tags** - Falls back to Open Graph (`og:`), Twitter Cards (`twitter:`), and standard meta tags
 3. **HTML Images** - Extracts product images directly from `<img>` elements using common patterns (Amazon's `landingImage`, product image classes, data attributes)
 
-If the first parser returns complete data (name, description, and price), it returns immediately. Otherwise, it merges results from multiple parsers. Images from all three sources are always combined.
+If the first parser returns complete data (name and description), it returns immediately. Otherwise, it merges results from multiple parsers. Images from all three sources are always combined.
 
 ### Supported Structures
 
