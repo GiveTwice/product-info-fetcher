@@ -174,7 +174,8 @@ On Linux servers, you may also need system dependencies for headless Chrome:
 # Ubuntu 24.04+
 apt-get install -y libnss3 libatk1.0-0t64 libatk-bridge2.0-0t64 \
   libcups2t64 libdrm2 libxkbcommon0 libxcomposite1 \
-  libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2t64
+  libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2t64 \
+  libpango-1.0-0 libcairo2
 
 # Ubuntu 22.04 and earlier
 apt-get install -y libnss3 libatk1.0-0 libatk-bridge2.0-0 \
