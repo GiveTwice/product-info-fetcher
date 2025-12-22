@@ -121,6 +121,77 @@ $product = (new ProductInfoFetcher('https://example.com/product'))
     ->fetchAndParse();
 ```
 
+### Custom Headers
+
+For sites with stricter bot detection, you can add extra HTTP headers to mimic a real browser:
+
+```php
+$product = (new ProductInfoFetcher('https://example.com/product'))
+    ->withExtraHeaders([
+        'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Cache-Control' => 'no-cache',
+        'DNT' => '1',
+        'Sec-CH-UA' => '"Google Chrome";v="131", "Chromium";v="131"',
+        'Sec-CH-UA-Mobile' => '?0',
+        'Sec-CH-UA-Platform' => '"macOS"',
+        'Sec-Fetch-Dest' => 'document',
+        'Sec-Fetch-Mode' => 'navigate',
+        'Sec-Fetch-Site' => 'none',
+        'Sec-Fetch-User' => '?1',
+        'Upgrade-Insecure-Requests' => '1',
+    ])
+    ->fetchAndParse();
+```
+
+Extra headers are merged with defaults and can override them. Multiple `withExtraHeaders()` calls can be chained.
+
+### Headless Browser Fallback
+
+Some sites use advanced bot protection (Akamai, Cloudflare) that blocks simple HTTP requests. For these sites, you can enable a headless browser fallback that uses Puppeteer to fetch the page:
+
+```php
+$product = (new ProductInfoFetcher('https://example.com/product'))
+    ->enableHeadlessFallback()
+    ->fetchAndParse();
+```
+
+When enabled, the fetcher will:
+1. First attempt a normal HTTP request
+2. If blocked with a 403 status, automatically retry using a headless Chrome browser
+3. Parse the resulting HTML as usual
+
+**Requirements:**
+
+To use the headless fallback, you need Node.js 18+ and Puppeteer installed:
+
+```bash
+npm install puppeteer@^23.0 puppeteer-extra@^3.3 puppeteer-extra-plugin-stealth@^2.11
+```
+
+On Linux servers, you may also need system dependencies for headless Chrome:
+
+```bash
+# Ubuntu 24.04+
+apt-get install -y libnss3 libatk1.0-0t64 libatk-bridge2.0-0t64 \
+  libcups2t64 libdrm2 libxkbcommon0 libxcomposite1 \
+  libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2t64
+
+# Ubuntu 22.04 and earlier
+apt-get install -y libnss3 libatk1.0-0 libatk-bridge2.0-0 \
+  libcups2 libdrm2 libxkbcommon0 libxcomposite1 \
+  libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2
+```
+
+**Custom Paths:**
+
+```php
+$product = (new ProductInfoFetcher('https://example.com/product'))
+    ->enableHeadlessFallback()
+    ->setNodeBinary('/usr/local/bin/node')
+    ->setChromePath('/usr/bin/chromium')
+    ->fetchAndParse();
+```
+
 ### Separate Fetch and Parse
 
 ```php

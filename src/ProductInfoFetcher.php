@@ -3,11 +3,14 @@
 namespace GiveTwice\ProductInfoFetcher;
 
 use GiveTwice\ProductInfoFetcher\DataTransferObjects\ProductInfo;
+use GiveTwice\ProductInfoFetcher\HeadlessBrowser\HeadlessFetcher;
+use GiveTwice\ProductInfoFetcher\HeadlessBrowser\HeadlessFetchResult;
 use GiveTwice\ProductInfoFetcher\Parsers\HtmlImageParser;
 use GiveTwice\ProductInfoFetcher\Parsers\JsonLdParser;
 use GiveTwice\ProductInfoFetcher\Parsers\MetaTagParser;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
 use RuntimeException;
 
@@ -29,9 +32,16 @@ class ProductInfoFetcher
 
     private string $acceptLanguage;
 
+    /** @var array<string, string> */
+    private array $extraHeaders = [];
+
     private ?string $html = null;
 
     private ?ClientInterface $client = null;
+
+    private bool $headlessFallbackEnabled = false;
+
+    private ?HeadlessFetcher $headlessFetcher = null;
 
     public function __construct(
         private readonly ?string $url = null,
@@ -77,11 +87,52 @@ class ProductInfoFetcher
         return $this;
     }
 
+    /**
+     * @param  array<string, string>  $headers
+     */
+    public function withExtraHeaders(array $headers): self
+    {
+        $this->extraHeaders = array_merge($this->extraHeaders, $headers);
+
+        return $this;
+    }
+
     public function setClient(ClientInterface $client): self
     {
         $this->client = $client;
 
         return $this;
+    }
+
+    public function enableHeadlessFallback(): self
+    {
+        $this->headlessFallbackEnabled = true;
+        $this->headlessFetcher = new HeadlessFetcher;
+
+        return $this;
+    }
+
+    public function setNodeBinary(string $path): self
+    {
+        $this->getHeadlessFetcher()->setNodeBinary($path);
+
+        return $this;
+    }
+
+    public function setChromePath(string $path): self
+    {
+        $this->getHeadlessFetcher()->setChromePath($path);
+
+        return $this;
+    }
+
+    private function getHeadlessFetcher(): HeadlessFetcher
+    {
+        if ($this->headlessFetcher === null) {
+            $this->headlessFetcher = new HeadlessFetcher;
+        }
+
+        return $this->headlessFetcher;
     }
 
     public function fetch(): self
@@ -90,6 +141,22 @@ class ProductInfoFetcher
             throw new RuntimeException('No URL provided. Pass a URL to the constructor or use setHtml() instead.');
         }
 
+        try {
+            $this->html = $this->fetchViaHttp();
+        } catch (ClientException $e) {
+            if ($e->getCode() === 403 && $this->headlessFallbackEnabled) {
+                $result = $this->fetchViaHeadless();
+                $this->html = $result->html;
+            } else {
+                throw $e;
+            }
+        }
+
+        return $this;
+    }
+
+    private function fetchViaHttp(): string
+    {
         $client = $this->client ?? new Client;
 
         $response = $client->get($this->url, [
@@ -103,16 +170,28 @@ class ProductInfoFetcher
                 'track_redirects' => false,
             ],
             RequestOptions::DECODE_CONTENT => true,
-            RequestOptions::HEADERS => [
+            RequestOptions::HEADERS => array_merge([
                 'User-Agent' => $this->userAgent,
                 'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 'Accept-Language' => $this->acceptLanguage,
-            ],
+            ], $this->extraHeaders),
         ]);
 
-        $this->html = (string) $response->getBody();
+        return (string) $response->getBody();
+    }
 
-        return $this;
+    private function fetchViaHeadless(): HeadlessFetchResult
+    {
+        $headers = array_merge(
+            ['Accept-Language' => $this->acceptLanguage],
+            $this->extraHeaders
+        );
+
+        return $this->getHeadlessFetcher()
+            ->setTimeout($this->timeout)
+            ->setUserAgent($this->userAgent)
+            ->setHeaders($headers)
+            ->fetch($this->url);
     }
 
     public function parse(): ProductInfo

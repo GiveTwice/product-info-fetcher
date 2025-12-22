@@ -1,0 +1,10 @@
+{
+    "name": "givetwice-product-info-fetcher",
+    "private": true,
+    "description": "Node.js dependencies for headless browser support",
+    "dependencies": {
+        "puppeteer": "^23.0",
+        "puppeteer-extra": "^3.3",
+        "puppeteer-extra-plugin-stealth": "^2.11"
+    }
+}
