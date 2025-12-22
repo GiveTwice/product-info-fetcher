@@ -22,37 +22,8 @@ if (!request || !request.url) {
     process.exit(1);
 }
 
-const BLOCK_PAGE_SIGNATURES = [
-    'ip address',
-    'blocked',
-    'access denied',
-    'forbidden',
-    'captcha',
-    'challenge',
-    'security check',
-    'unusual traffic',
-    'bot detection',
-    'automated access',
-    'rate limit',
-];
-
-function isBlockPage(html, statusCode) {
-    if (statusCode === 403 || statusCode === 429 || statusCode === 503) {
-        return true;
-    }
-
-    const lowerHtml = html.toLowerCase();
-    const matchedSignatures = BLOCK_PAGE_SIGNATURES.filter(sig => lowerHtml.includes(sig));
-
-    if (matchedSignatures.length >= 2) {
-        return true;
-    }
-
-    if (lowerHtml.includes('blocked') && lowerHtml.includes('ip')) {
-        return true;
-    }
-
-    return false;
+function isBlockedStatusCode(statusCode) {
+    return statusCode !== 200;
 }
 
 (async () => {
@@ -97,10 +68,10 @@ function isBlockPage(html, statusCode) {
         const html = await page.content();
         const statusCode = response ? response.status() : 200;
 
-        if (isBlockPage(html, statusCode)) {
+        if (isBlockedStatusCode(statusCode)) {
             console.log(JSON.stringify({
                 success: false,
-                error: `Request blocked (status: ${statusCode})`,
+                error: `Request failed (status: ${statusCode})`,
                 statusCode: statusCode,
                 html: html,
                 finalUrl: response ? response.url() : request.url,
