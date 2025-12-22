@@ -91,7 +91,19 @@ class HeadlessFetcher
         }
 
         if (! $process->isSuccessful() || ! ($output['success'] ?? false)) {
-            throw new BrowserException($output['error'] ?? $process->getErrorOutput());
+            $errorMessage = $output['error'] ?? $process->getErrorOutput();
+
+            if (isset($output['html'], $output['statusCode'])) {
+                throw BrowserException::blocked(
+                    $errorMessage,
+                    (int) $output['statusCode'],
+                    $output['html'],
+                    $output['headers'] ?? [],
+                    $output['finalUrl'] ?? null
+                );
+            }
+
+            throw new BrowserException($errorMessage);
         }
 
         return new HeadlessFetchResult(
