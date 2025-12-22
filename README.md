@@ -165,7 +165,7 @@ When enabled, the fetcher will:
 To use the headless fallback, you need Node.js 18+ and Puppeteer installed:
 
 ```bash
-npm install puppeteer@^23.0
+npm install puppeteer@^23.0 puppeteer-extra@^3.3 puppeteer-extra-plugin-stealth@^2.11
 ```
 
 On Linux servers, you may also need system dependencies for headless Chrome:

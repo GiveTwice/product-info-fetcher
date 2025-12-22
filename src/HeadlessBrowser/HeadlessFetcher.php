@@ -4,10 +4,13 @@ namespace GiveTwice\ProductInfoFetcher\HeadlessBrowser;
 
 use GiveTwice\ProductInfoFetcher\HeadlessBrowser\Exceptions\BrowserException;
 use GiveTwice\ProductInfoFetcher\HeadlessBrowser\Exceptions\NodeNotFoundException;
+use InvalidArgumentException;
 use Symfony\Component\Process\Process;
 
 class HeadlessFetcher
 {
+    private const PROCESS_TIMEOUT_BUFFER = 10;
+
     private string $nodeBinary = '/usr/bin/node';
 
     private ?string $chromePath = null;
@@ -16,6 +19,7 @@ class HeadlessFetcher
 
     private ?string $userAgent = null;
 
+    /** @var array<string, string> */
     private array $headers = [];
 
     public function setNodeBinary(string $path): self
@@ -46,6 +50,9 @@ class HeadlessFetcher
         return $this;
     }
 
+    /**
+     * @param  array<string, string>  $headers
+     */
     public function setHeaders(array $headers): self
     {
         $this->headers = $headers;
@@ -55,6 +62,7 @@ class HeadlessFetcher
 
     public function fetch(string $url): HeadlessFetchResult
     {
+        $this->validateUrl($url);
         $this->ensureNodeExists();
 
         $command = [
@@ -71,10 +79,16 @@ class HeadlessFetcher
             json_encode($command),
         ]);
 
-        $process->setTimeout($this->timeout + 10);
+        $process->setTimeout($this->timeout + self::PROCESS_TIMEOUT_BUFFER);
         $process->run();
 
         $output = json_decode($process->getOutput(), true);
+
+        if ($output === null || ! is_array($output)) {
+            throw new BrowserException(
+                'Invalid JSON response from headless browser: '.$process->getOutput()
+            );
+        }
 
         if (! $process->isSuccessful() || ! ($output['success'] ?? false)) {
             throw new BrowserException($output['error'] ?? $process->getErrorOutput());
@@ -85,6 +99,19 @@ class HeadlessFetcher
             statusCode: $output['statusCode'],
             finalUrl: $output['finalUrl'],
         );
+    }
+
+    private function validateUrl(string $url): void
+    {
+        if (! filter_var($url, FILTER_VALIDATE_URL)) {
+            throw new InvalidArgumentException("Invalid URL provided: {$url}");
+        }
+
+        $scheme = parse_url($url, PHP_URL_SCHEME);
+
+        if (! in_array($scheme, ['http', 'https'], true)) {
+            throw new InvalidArgumentException('Only HTTP(S) URLs are allowed');
+        }
     }
 
     private function ensureNodeExists(): void

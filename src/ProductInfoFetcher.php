@@ -4,6 +4,7 @@ namespace GiveTwice\ProductInfoFetcher;
 
 use GiveTwice\ProductInfoFetcher\DataTransferObjects\ProductInfo;
 use GiveTwice\ProductInfoFetcher\HeadlessBrowser\HeadlessFetcher;
+use GiveTwice\ProductInfoFetcher\HeadlessBrowser\HeadlessFetchResult;
 use GiveTwice\ProductInfoFetcher\Parsers\HtmlImageParser;
 use GiveTwice\ProductInfoFetcher\Parsers\JsonLdParser;
 use GiveTwice\ProductInfoFetcher\Parsers\MetaTagParser;
@@ -31,6 +32,7 @@ class ProductInfoFetcher
 
     private string $acceptLanguage;
 
+    /** @var array<string, string> */
     private array $extraHeaders = [];
 
     private ?string $html = null;
@@ -178,12 +180,17 @@ class ProductInfoFetcher
         return (string) $response->getBody();
     }
 
-    private function fetchViaHeadless(): HeadlessBrowser\HeadlessFetchResult
+    private function fetchViaHeadless(): HeadlessFetchResult
     {
+        $headers = array_merge(
+            ['Accept-Language' => $this->acceptLanguage],
+            $this->extraHeaders
+        );
+
         return $this->getHeadlessFetcher()
             ->setTimeout($this->timeout)
             ->setUserAgent($this->userAgent)
-            ->setHeaders($this->extraHeaders)
+            ->setHeaders($headers)
             ->fetch($this->url);
     }
 
