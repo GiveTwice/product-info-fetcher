@@ -29,6 +29,8 @@ class ProductInfoFetcher
 
     private string $acceptLanguage;
 
+    private array $extraHeaders = [];
+
     private ?string $html = null;
 
     private ?ClientInterface $client = null;
@@ -77,6 +79,16 @@ class ProductInfoFetcher
         return $this;
     }
 
+    /**
+     * @param  array<string, string>  $headers
+     */
+    public function withExtraHeaders(array $headers): self
+    {
+        $this->extraHeaders = array_merge($this->extraHeaders, $headers);
+
+        return $this;
+    }
+
     public function setClient(ClientInterface $client): self
     {
         $this->client = $client;
@@ -103,11 +115,11 @@ class ProductInfoFetcher
                 'track_redirects' => false,
             ],
             RequestOptions::DECODE_CONTENT => true,
-            RequestOptions::HEADERS => [
+            RequestOptions::HEADERS => array_merge([
                 'User-Agent' => $this->userAgent,
                 'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 'Accept-Language' => $this->acceptLanguage,
-            ],
+            ], $this->extraHeaders),
         ]);
 
         $this->html = (string) $response->getBody();

@@ -121,6 +121,30 @@ $product = (new ProductInfoFetcher('https://example.com/product'))
     ->fetchAndParse();
 ```
 
+### Custom Headers
+
+For sites with stricter bot detection, you can add extra HTTP headers to mimic a real browser:
+
+```php
+$product = (new ProductInfoFetcher('https://example.com/product'))
+    ->withExtraHeaders([
+        'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Cache-Control' => 'no-cache',
+        'DNT' => '1',
+        'Sec-CH-UA' => '"Google Chrome";v="131", "Chromium";v="131"',
+        'Sec-CH-UA-Mobile' => '?0',
+        'Sec-CH-UA-Platform' => '"macOS"',
+        'Sec-Fetch-Dest' => 'document',
+        'Sec-Fetch-Mode' => 'navigate',
+        'Sec-Fetch-Site' => 'none',
+        'Sec-Fetch-User' => '?1',
+        'Upgrade-Insecure-Requests' => '1',
+    ])
+    ->fetchAndParse();
+```
+
+Extra headers are merged with defaults and can override them. Multiple `withExtraHeaders()` calls can be chained.
+
 ### Separate Fetch and Parse
 
 ```php
