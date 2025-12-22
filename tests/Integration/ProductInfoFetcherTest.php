@@ -1,5 +1,6 @@
 <?php
 
+use GiveTwice\ProductInfoFetcher\HeadlessBrowser\Exceptions\NodeNotFoundException;
 use GiveTwice\ProductInfoFetcher\ProductInfoFetcher;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
@@ -164,6 +165,25 @@ it('can enable headless fallback', function () {
 
     expect($result)->toBe($fetcher);
 });
+
+it('can prefer headless', function () {
+    $fetcher = new ProductInfoFetcher('https://example.com/product');
+
+    $result = $fetcher->preferHeadless();
+
+    expect($result)->toBe($fetcher);
+});
+
+it('skips HTTP and uses headless directly when preferHeadless is enabled', function () {
+    $history = [];
+    $client = createMockClient($history);
+
+    (new ProductInfoFetcher('https://example.com/product'))
+        ->setClient($client)
+        ->preferHeadless()
+        ->setNodeBinary('/nonexistent/node')
+        ->fetch();
+})->throws(NodeNotFoundException::class);
 
 it('can set node binary path', function () {
     $fetcher = new ProductInfoFetcher('https://example.com/product');

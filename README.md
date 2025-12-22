@@ -145,9 +145,21 @@ $product = (new ProductInfoFetcher('https://example.com/product'))
 
 Extra headers are merged with defaults and can override them. Multiple `withExtraHeaders()` calls can be chained.
 
-### Headless Browser Fallback
+### Headless Browser
 
-Some sites use advanced bot protection (Akamai, Cloudflare) that blocks simple HTTP requests. For these sites, you can enable a headless browser fallback that uses Puppeteer to fetch the page:
+Some sites use advanced bot protection (Akamai, Cloudflare) that blocks simple HTTP requests. For these sites, you can use a headless Chrome browser via Puppeteer to fetch the page.
+
+**Prefer Headless (recommended for known-protected sites):**
+
+```php
+$product = (new ProductInfoFetcher('https://example.com/product'))
+    ->preferHeadless()
+    ->fetchAndParse();
+```
+
+Use `preferHeadless()` when you know the site has bot protection. This skips the HTTP request entirely and uses headless Chrome directly. This is more efficient because attempting an HTTP request first can get your IP flagged, causing subsequent headless requests to also fail.
+
+**Fallback Mode:**
 
 ```php
 $product = (new ProductInfoFetcher('https://example.com/product'))
@@ -159,6 +171,8 @@ When enabled, the fetcher will:
 1. First attempt a normal HTTP request
 2. If blocked with a 403 status, automatically retry using a headless Chrome browser
 3. Parse the resulting HTML as usual
+
+Use `enableHeadlessFallback()` when you're unsure if the site has bot protection and want to try the faster HTTP request first.
 
 **Requirements:**
 

@@ -41,6 +41,8 @@ class ProductInfoFetcher
 
     private bool $headlessFallbackEnabled = false;
 
+    private bool $preferHeadless = false;
+
     private ?HeadlessFetcher $headlessFetcher = null;
 
     public function __construct(
@@ -107,7 +109,15 @@ class ProductInfoFetcher
     public function enableHeadlessFallback(): self
     {
         $this->headlessFallbackEnabled = true;
-        $this->headlessFetcher = new HeadlessFetcher;
+        $this->getHeadlessFetcher();
+
+        return $this;
+    }
+
+    public function preferHeadless(): self
+    {
+        $this->preferHeadless = true;
+        $this->getHeadlessFetcher();
 
         return $this;
     }
@@ -139,6 +149,12 @@ class ProductInfoFetcher
     {
         if ($this->url === null) {
             throw new RuntimeException('No URL provided. Pass a URL to the constructor or use setHtml() instead.');
+        }
+
+        if ($this->preferHeadless) {
+            $this->html = $this->fetchViaHeadless()->html;
+
+            return $this;
         }
 
         try {
