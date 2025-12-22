@@ -102,6 +102,8 @@ function isBlockPage(html, statusCode) {
                 success: false,
                 error: `Request blocked (status: ${statusCode})`,
                 statusCode: statusCode,
+                html: html,
+                finalUrl: response ? response.url() : request.url,
             }));
             process.exit(1);
         }
