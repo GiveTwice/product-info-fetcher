@@ -1,6 +1,9 @@
 <?php
 
 use GiveTwice\ProductInfoFetcher\ProductInfoFetcher;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
+use GuzzleHttp\Psr7\Response;
 
 it('fetches and parses a real product page', function () {
     $result = (new ProductInfoFetcher('https://request-mirror.ohdear.app/examples/product-info-page'))
@@ -153,3 +156,56 @@ it('can chain multiple withExtraHeaders calls', function () {
     expect($request->getHeader('DNT'))->toBe(['1'])
         ->and($request->getHeader('Sec-Fetch-Mode'))->toBe(['navigate']);
 });
+
+it('can enable headless fallback', function () {
+    $fetcher = new ProductInfoFetcher('https://example.com/product');
+
+    $result = $fetcher->enableHeadlessFallback();
+
+    expect($result)->toBe($fetcher);
+});
+
+it('can set node binary path', function () {
+    $fetcher = new ProductInfoFetcher('https://example.com/product');
+
+    $result = $fetcher->setNodeBinary('/custom/node');
+
+    expect($result)->toBe($fetcher);
+});
+
+it('can set chrome path', function () {
+    $fetcher = new ProductInfoFetcher('https://example.com/product');
+
+    $result = $fetcher->setChromePath('/custom/chrome');
+
+    expect($result)->toBe($fetcher);
+});
+
+it('throws 403 error when headless fallback is not enabled', function () {
+    $history = [];
+    $client = createMockClient($history, [new Response(403, [], 'Forbidden')]);
+
+    (new ProductInfoFetcher('https://example.com/product'))
+        ->setClient($client)
+        ->fetch();
+})->throws(ClientException::class);
+
+it('throws non-403 client errors even when headless fallback is enabled', function () {
+    $history = [];
+    $client = createMockClient($history, [new Response(404, [], 'Not Found')]);
+
+    (new ProductInfoFetcher('https://example.com/product'))
+        ->setClient($client)
+        ->enableHeadlessFallback()
+        ->fetch();
+})->throws(ClientException::class);
+
+it('throws server errors even when headless fallback is enabled', function () {
+    $history = [];
+    $client = createMockClient($history, [new Response(500, [], 'Server Error')]);
+
+    (new ProductInfoFetcher('https://example.com/product'))
+        ->setClient($client)
+        ->enableHeadlessFallback()
+        ->fetch();
+})->throws(ServerException::class);
