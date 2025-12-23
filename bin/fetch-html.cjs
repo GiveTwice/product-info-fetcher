@@ -33,12 +33,16 @@ function isBlockedStatusCode(statusCode) {
             headless: true,
             pipe: true,
             timeout: 30000,
+            ignoreDefaultArgs: ['--enable-automation'],
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
                 '--disable-gpu',
                 '--disable-software-rasterizer',
+                '--disable-blink-features=AutomationControlled',
+                '--disable-features=IsolateOrigins,site-per-process',
+                '--window-size=1920,1080',
             ],
         };
 
@@ -50,7 +54,7 @@ function isBlockedStatusCode(statusCode) {
 
         const page = await browser.newPage();
 
-        await page.setViewport({ width: 1280, height: 800 });
+        await page.setViewport({ width: 1920, height: 1080 });
 
         if (request.userAgent) {
             await page.setUserAgent(request.userAgent);
