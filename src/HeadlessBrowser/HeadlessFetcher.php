@@ -11,7 +11,7 @@ class HeadlessFetcher
 {
     private const PROCESS_TIMEOUT_BUFFER = 10;
 
-    private string $nodeBinary = '/usr/bin/node';
+    private string $nodeBinary = 'node';
 
     private ?string $chromePath = null;
 
