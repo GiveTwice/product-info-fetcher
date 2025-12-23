@@ -26,9 +26,21 @@ function isBlockedStatusCode(statusCode) {
     return statusCode !== 200;
 }
 
+function parseProxyUrl(proxyUrl) {
+    if (!proxyUrl) return null;
+
+    const url = new URL(proxyUrl);
+    const server = `${url.protocol}//${url.host}`;
+    const auth = url.username ? { username: decodeURIComponent(url.username), password: decodeURIComponent(url.password || '') } : null;
+
+    return { server, auth };
+}
+
 (async () => {
     let browser;
     try {
+        const proxy = parseProxyUrl(request.proxy);
+
         const launchOptions = {
             headless: true,
             pipe: true,
@@ -46,6 +58,10 @@ function isBlockedStatusCode(statusCode) {
             ],
         };
 
+        if (proxy) {
+            launchOptions.args.push(`--proxy-server=${proxy.server}`);
+        }
+
         if (request.chromePath) {
             launchOptions.executablePath = request.chromePath;
         }
@@ -53,6 +69,10 @@ function isBlockedStatusCode(statusCode) {
         browser = await puppeteer.launch(launchOptions);
 
         const page = await browser.newPage();
+
+        if (proxy && proxy.auth) {
+            await page.authenticate(proxy.auth);
+        }
 
         await page.setViewport({ width: 1920, height: 1080 });
 

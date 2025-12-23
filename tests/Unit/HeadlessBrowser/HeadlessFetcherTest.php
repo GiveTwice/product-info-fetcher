@@ -60,3 +60,57 @@ it('can chain configuration methods', function () {
 
     expect($fetcher)->toBeInstanceOf(HeadlessFetcher::class);
 });
+
+it('can set proxy', function () {
+    $fetcher = new HeadlessFetcher;
+
+    $result = $fetcher->setProxy('http://proxy.example.com:3128');
+
+    expect($result)->toBe($fetcher);
+});
+
+it('can set proxy with authentication', function () {
+    $fetcher = new HeadlessFetcher;
+
+    $result = $fetcher->setProxy('http://user:pass@proxy.example.com:3128');
+
+    expect($result)->toBe($fetcher);
+});
+
+it('can chain setProxy with other methods', function () {
+    $fetcher = (new HeadlessFetcher)
+        ->setNodeBinary('/usr/bin/node')
+        ->setProxy('http://proxy.example.com:3128')
+        ->setTimeout(45);
+
+    expect($fetcher)->toBeInstanceOf(HeadlessFetcher::class);
+});
+
+it('passes proxy to node script', function () {
+    $echoScriptPath = dirname(__DIR__, 3).'/bin/echo-command.cjs';
+
+    $fetcher = (new HeadlessFetcher)
+        ->setScriptPath($echoScriptPath)
+        ->setProxy('http://user:pass@proxy.example.com:3128');
+
+    $result = $fetcher->fetch('https://example.com');
+
+    expect($result->html)->toContain('_receivedCommand');
+
+    $response = json_decode($result->html, true);
+
+    expect($response['_receivedCommand']['proxy'])->toBe('http://user:pass@proxy.example.com:3128');
+});
+
+it('passes null proxy to node script when not set', function () {
+    $echoScriptPath = dirname(__DIR__, 3).'/bin/echo-command.cjs';
+
+    $fetcher = (new HeadlessFetcher)
+        ->setScriptPath($echoScriptPath);
+
+    $result = $fetcher->fetch('https://example.com');
+
+    $response = json_decode($result->html, true);
+
+    expect($response['_receivedCommand']['proxy'])->toBeNull();
+});

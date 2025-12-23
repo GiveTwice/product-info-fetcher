@@ -229,3 +229,48 @@ it('throws server errors even when headless fallback is enabled', function () {
         ->enableHeadlessFallback()
         ->fetch();
 })->throws(ServerException::class);
+
+it('can set proxy via viaProxy', function () {
+    $fetcher = new ProductInfoFetcher('https://example.com/product');
+
+    $result = $fetcher->viaProxy('http://proxy.example.com:3128');
+
+    expect($result)->toBe($fetcher);
+});
+
+it('can set proxy with authentication', function () {
+    $fetcher = new ProductInfoFetcher('https://example.com/product');
+
+    $result = $fetcher->viaProxy('http://user:pass@proxy.example.com:3128');
+
+    expect($result)->toBe($fetcher);
+});
+
+it('can chain viaProxy with other methods', function () {
+    $fetcher = (new ProductInfoFetcher('https://example.com/product'))
+        ->setUserAgent('CustomBot/1.0')
+        ->viaProxy('http://proxy.example.com:3128')
+        ->setTimeout(10);
+
+    expect($fetcher)->toBeInstanceOf(ProductInfoFetcher::class);
+});
+
+it('passes proxy to guzzle client', function () {
+    $proxyUsed = null;
+    $handler = function ($request, $options) use (&$proxyUsed) {
+        $proxyUsed = $options['proxy'] ?? null;
+
+        return new \GuzzleHttp\Promise\FulfilledPromise(
+            new Response(200, [], '<html><head></head><body></body></html>')
+        );
+    };
+
+    $client = new \GuzzleHttp\Client(['handler' => $handler]);
+
+    (new ProductInfoFetcher('https://example.com/product'))
+        ->setClient($client)
+        ->viaProxy('http://user:pass@proxy.example.com:3128')
+        ->fetch();
+
+    expect($proxyUsed)->toBe('http://user:pass@proxy.example.com:3128');
+});

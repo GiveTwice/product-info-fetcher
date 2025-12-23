@@ -35,6 +35,8 @@ class ProductInfoFetcher
     /** @var array<string, string> */
     private array $extraHeaders = [];
 
+    private ?string $proxy = null;
+
     private ?string $html = null;
 
     private ?ClientInterface $client = null;
@@ -95,6 +97,13 @@ class ProductInfoFetcher
     public function withExtraHeaders(array $headers): self
     {
         $this->extraHeaders = array_merge($this->extraHeaders, $headers);
+
+        return $this;
+    }
+
+    public function viaProxy(string $proxy): self
+    {
+        $this->proxy = $proxy;
 
         return $this;
     }
@@ -175,7 +184,7 @@ class ProductInfoFetcher
     {
         $client = $this->client ?? new Client;
 
-        $response = $client->get($this->url, [
+        $options = [
             RequestOptions::TIMEOUT => $this->timeout,
             RequestOptions::CONNECT_TIMEOUT => $this->connectTimeout,
             RequestOptions::HTTP_ERRORS => true,
@@ -191,7 +200,13 @@ class ProductInfoFetcher
                 'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 'Accept-Language' => $this->acceptLanguage,
             ], $this->extraHeaders),
-        ]);
+        ];
+
+        if ($this->proxy !== null) {
+            $options[RequestOptions::PROXY] = $this->proxy;
+        }
+
+        $response = $client->get($this->url, $options);
 
         return (string) $response->getBody();
     }
@@ -203,11 +218,16 @@ class ProductInfoFetcher
             $this->extraHeaders
         );
 
-        return $this->getHeadlessFetcher()
+        $fetcher = $this->getHeadlessFetcher()
             ->setTimeout($this->timeout)
             ->setUserAgent($this->userAgent)
-            ->setHeaders($headers)
-            ->fetch($this->url);
+            ->setHeaders($headers);
+
+        if ($this->proxy !== null) {
+            $fetcher->setProxy($this->proxy);
+        }
+
+        return $fetcher->fetch($this->url);
     }
 
     public function parse(): ProductInfo

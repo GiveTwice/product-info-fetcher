@@ -22,6 +22,10 @@ class HeadlessFetcher
     /** @var array<string, string> */
     private array $headers = [];
 
+    private ?string $proxy = null;
+
+    private ?string $scriptPath = null;
+
     public function setNodeBinary(string $path): self
     {
         $this->nodeBinary = $path;
@@ -60,6 +64,20 @@ class HeadlessFetcher
         return $this;
     }
 
+    public function setProxy(string $proxy): self
+    {
+        $this->proxy = $proxy;
+
+        return $this;
+    }
+
+    public function setScriptPath(string $path): self
+    {
+        $this->scriptPath = $path;
+
+        return $this;
+    }
+
     public function fetch(string $url): HeadlessFetchResult
     {
         $this->validateUrl($url);
@@ -71,6 +89,7 @@ class HeadlessFetcher
             'userAgent' => $this->userAgent,
             'headers' => $this->headers,
             'chromePath' => $this->chromePath,
+            'proxy' => $this->proxy,
         ];
 
         $process = new Process([
@@ -141,6 +160,6 @@ class HeadlessFetcher
 
     private function getScriptPath(): string
     {
-        return dirname(__DIR__, 2).'/bin/fetch-html.cjs';
+        return $this->scriptPath ?? dirname(__DIR__, 2).'/bin/fetch-html.cjs';
     }
 }

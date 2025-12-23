@@ -145,6 +145,23 @@ $product = (new ProductInfoFetcher('https://example.com/product'))
 
 Extra headers are merged with defaults and can override them. Multiple `withExtraHeaders()` calls can be chained.
 
+### HTTP Proxy
+
+Route requests through an HTTP proxy:
+
+```php
+$product = (new ProductInfoFetcher('https://example.com/product'))
+    ->viaProxy('http://proxy.example.com:3128')
+    ->fetchAndParse();
+
+// With authentication
+$product = (new ProductInfoFetcher('https://example.com/product'))
+    ->viaProxy('http://username:password@proxy.example.com:3128')
+    ->fetchAndParse();
+```
+
+The proxy is used for both regular HTTP requests (via Guzzle/cURL) and headless browser requests (via Chrome's `--proxy-server` flag). Proxy authentication is handled automatically.
+
 ### Headless Browser
 
 Some sites use advanced bot protection (Akamai, Cloudflare) that blocks simple HTTP requests. For these sites, you can use a headless Chrome browser via Puppeteer to fetch the page.
