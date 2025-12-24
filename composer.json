@@ -17,7 +17,7 @@
     "require": {
         "php": "^8.4",
         "guzzlehttp/guzzle": "^7.9",
-        "symfony/process": "^6.0|^7.0"
+        "symfony/process": "^8.0.0"
     },
     "require-dev": {
         "pestphp/pest": "^4.0",
