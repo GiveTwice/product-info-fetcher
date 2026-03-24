@@ -22,6 +22,15 @@ if (!request || !request.url) {
     process.exit(1);
 }
 
+// Domains whose requests we abort to avoid waiting on background analytics/ads traffic.
+// These are the most common sources of indefinite network activity on JS-heavy retail sites.
+const BLOCKED_DOMAINS = [
+    'google-analytics', 'googletagmanager', 'doubleclick', 'facebook', 'twitter',
+    'analytics', 'tracking', 'ads.', 'pixel.', 'segment.io', 'mixpanel',
+    'hotjar', 'adobedtm', 'mparticle', 'braze', 'amplitude', 'heap.io',
+    'fullstory', 'sentry.io', 'bugsnag', 'newrelic', 'datadog', 'dynatrace',
+];
+
 function isBlockedStatusCode(statusCode) {
     return statusCode !== 200;
 }
@@ -84,10 +93,45 @@ function parseProxyUrl(proxyUrl) {
             await page.setExtraHTTPHeaders(request.headers);
         }
 
+        // Block non-essential resource types and analytics/tracking domains.
+        // This prevents JS-heavy retail sites (Nike, Shein, etc.) from holding the
+        // connection open with background analytics pings that never settle under
+        // networkidle2, causing timeouts.
+        await page.setRequestInterception(true);
+        page.on('request', (req) => {
+            const type = req.resourceType();
+            const url = req.url();
+
+            if (['image', 'stylesheet', 'font', 'media', 'other'].includes(type)) {
+                req.abort();
+                return;
+            }
+
+            if (BLOCKED_DOMAINS.some((domain) => url.includes(domain))) {
+                req.abort();
+                return;
+            }
+
+            req.continue();
+        });
+
+        // Use domcontentloaded instead of networkidle2: we want the HTML/JS to be
+        // parsed, not to wait for every background request to finish.
         const response = await page.goto(request.url, {
-            waitUntil: 'networkidle2',
+            waitUntil: 'domcontentloaded',
             timeout: request.timeout || 30000,
         });
+
+        // Give JS-rendered meta tags (og:title, og:price, etc.) up to 3 seconds to
+        // populate, then hard-cut regardless. This handles SPAs that inject meta tags
+        // after DOMContentLoaded without risking an indefinite wait.
+        await Promise.race([
+            page.waitForFunction(
+                () => document.querySelector('meta[property="og:title"]')?.content?.length > 0,
+                { timeout: 3000 }
+            ).catch(() => null),
+            new Promise((resolve) => setTimeout(resolve, 3000)),
+        ]);
 
         const html = await page.content();
         const statusCode = response ? response.status() : 200;
