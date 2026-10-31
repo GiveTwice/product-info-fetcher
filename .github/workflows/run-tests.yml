@@ -4,6 +4,10 @@ on:
   push:
     paths:
       - '**.php'
+      - 'tests/Fixtures/**'
+      - 'tests/Browser/**'
+      - 'bin/*.cjs'
+      - 'package.json'
       - '.github/workflows/run-tests.yml'
       - 'phpunit.xml.dist'
       - 'composer.json'
@@ -50,3 +54,20 @@ jobs:
 
       - name: Execute tests
         run: vendor/bin/pest --ci
+
+  browser-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install browser dependencies
+        run: npm install
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
+      - name: Test browser timeout and blocked response handling locally
+        run: node --test tests/Browser/fetch-html.test.cjs
+        env:
+          CHROME_PATH: /usr/bin/google-chrome

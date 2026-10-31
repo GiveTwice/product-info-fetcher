@@ -22,7 +22,7 @@ enum ProductAvailability: string
 
         return match (true) {
             str_contains($value, 'instock') => self::InStock,
-            str_contains($value, 'outofstock') => self::OutOfStock,
+            str_contains($value, 'outofstock') || $value === 'soldout' => self::OutOfStock,
             str_contains($value, 'preorder') => self::PreOrder,
             str_contains($value, 'backorder') => self::BackOrder,
             str_contains($value, 'discontinued') => self::Discontinued,

@@ -2,6 +2,7 @@
 
 namespace GiveTwice\ProductInfoFetcher\DataTransferObjects;
 
+use GiveTwice\ProductInfoFetcher\Enum\FetchOutcome;
 use GiveTwice\ProductInfoFetcher\Enum\ProductAvailability;
 use GiveTwice\ProductInfoFetcher\Enum\ProductCondition;
 
@@ -22,7 +23,18 @@ class ProductInfo
         public ?ProductCondition $condition = null,
         public ?float $rating = null,
         public ?int $reviewCount = null,
+        public ?string $finalUrl = null,
+        public ?int $httpStatus = null,
+        public FetchOutcome $outcome = FetchOutcome::Incomplete,
+        /** @var list<TransportAttempt> */
+        public array $attempts = [],
     ) {}
+
+    public function hasProductData(): bool
+    {
+        return $this->name !== null && $this->name !== ''
+            && $this->priceInCents !== null && $this->imageUrl !== null;
+    }
 
     public function isComplete(): bool
     {
@@ -62,6 +74,10 @@ class ProductInfo
             'condition' => $this->condition?->value,
             'rating' => $this->rating,
             'reviewCount' => $this->reviewCount,
+            'finalUrl' => $this->finalUrl,
+            'httpStatus' => $this->httpStatus,
+            'outcome' => $this->outcome->value,
+            'attempts' => array_map(fn (TransportAttempt $attempt) => $attempt->toArray(), $this->attempts),
         ];
     }
 }

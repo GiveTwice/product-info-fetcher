@@ -84,7 +84,7 @@ class MetaTagParser implements ParserInterface
 
     private function extractPriceInCents(): ?int
     {
-        $priceAmount = $this->extractMetaContent('product:price:amount');
+        $priceAmount = $this->extractMetaContent('product:price:amount') ?? $this->extractMetaContent('og:price:amount');
 
         if ($priceAmount === null) {
             return null;
@@ -95,7 +95,7 @@ class MetaTagParser implements ParserInterface
 
     private function extractPriceCurrency(): ?string
     {
-        return $this->extractMetaContent('product:price:currency');
+        return $this->extractMetaContent('product:price:currency') ?? $this->extractMetaContent('og:price:currency');
     }
 
     private function extractAllImages(): array

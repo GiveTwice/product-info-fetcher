@@ -2,12 +2,17 @@
 
 use GiveTwice\ProductInfoFetcher\HeadlessBrowser\Exceptions\NodeNotFoundException;
 use GiveTwice\ProductInfoFetcher\ProductInfoFetcher;
+use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\Psr7\Response;
 
 it('fetches and parses a real product page', function () {
     $result = (new ProductInfoFetcher('https://request-mirror.ohdear.app/examples/product-info-page'))
+        ->setClient(new Client(['handler' => HandlerStack::create(new MockHandler([new Response(200, [], getFixture('Mirror/product-info-page.html'))]))]))
         ->fetchAndParse();
 
     expect($result->name)->toBe('Oh Dear Subscription')
@@ -19,6 +24,7 @@ it('fetches and parses a real product page', function () {
 
 it('falls back to meta tags for non-product json-ld types', function () {
     $result = (new ProductInfoFetcher('https://request-mirror.ohdear.app/examples/recipe'))
+        ->setClient(new Client(['handler' => HandlerStack::create(new MockHandler([new Response(200, [], getFixture('Mirror/recipe.html'))]))]))
         ->fetchAndParse();
 
     expect($result->name)->toBe('Recipe: The perfect website monitoring stack')
@@ -29,7 +35,8 @@ it('falls back to meta tags for non-product json-ld types', function () {
 });
 
 it('can fetch and parse separately', function () {
-    $fetcher = new ProductInfoFetcher('https://request-mirror.ohdear.app/examples/product-info-page');
+    $history = [];
+    $fetcher = (new ProductInfoFetcher('https://request-mirror.ohdear.app/examples/product-info-page'))->setClient(createMockClient($history, [new Response(200, [], getFixture('Mirror/product-info-page.html'))]));
 
     $fetcher->fetch();
     $result = $fetcher->parse();
@@ -65,7 +72,7 @@ it('sends default headers', function () {
 
     $request = $history[0]['request'];
 
-    expect($request->getHeader('User-Agent'))->toBe(['ProductInfoFetcher/1.0'])
+    expect($request->getHeader('User-Agent'))->toContain('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36')
         ->and($request->getHeader('Accept'))->toBe(['text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'])
         ->and($request->getHeader('Accept-Language'))->toBe(['en-US,en;q=0.5']);
 });
@@ -100,6 +107,7 @@ it('sends simple language code', function () {
 
 it('can set custom timeout', function () {
     $result = (new ProductInfoFetcher('https://request-mirror.ohdear.app/examples/product-info-page'))
+        ->setClient(new Client(['handler' => HandlerStack::create(new MockHandler([new Response(200, [], getFixture('Mirror/product-info-page.html'))]))]))
         ->setTimeout(10)
         ->setConnectTimeout(5)
         ->fetchAndParse();
@@ -123,7 +131,7 @@ it('sends extra headers', function () {
 
     expect($request->getHeader('DNT'))->toBe(['1'])
         ->and($request->getHeader('Sec-Fetch-Dest'))->toBe(['document'])
-        ->and($request->getHeader('User-Agent'))->toBe(['ProductInfoFetcher/1.0']);
+        ->and($request->getHeader('User-Agent'))->toContain('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36');
 });
 
 it('extra headers can override defaults', function () {
@@ -260,12 +268,12 @@ it('passes proxy to guzzle client', function () {
     $handler = function ($request, $options) use (&$proxyUsed) {
         $proxyUsed = $options['proxy'] ?? null;
 
-        return new \GuzzleHttp\Promise\FulfilledPromise(
+        return new FulfilledPromise(
             new Response(200, [], '<html><head></head><body></body></html>')
         );
     };
 
-    $client = new \GuzzleHttp\Client(['handler' => $handler]);
+    $client = new Client(['handler' => $handler]);
 
     (new ProductInfoFetcher('https://example.com/product'))
         ->setClient($client)

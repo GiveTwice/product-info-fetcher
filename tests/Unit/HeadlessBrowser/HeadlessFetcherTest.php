@@ -114,3 +114,10 @@ it('passes null proxy to node script when not set', function () {
 
     expect($response['_receivedCommand']['proxy'])->toBeNull();
 });
+
+it('preserves timeout diagnostics returned with a usable DOM', function () {
+    $result = (new HeadlessFetcher)->setScriptPath(dirname(__DIR__, 2).'/Fixtures/browser-timeout.cjs')->fetch('https://example.com');
+    expect($result->html)->toContain('Product from retained DOM')->and($result->statusCode)->toBe(200)
+        ->and($result->finalUrl)->toBe('https://example.com/final')->and($result->timedOut)->toBeTrue()
+        ->and($result->error)->toBe('navigation_timeout');
+});

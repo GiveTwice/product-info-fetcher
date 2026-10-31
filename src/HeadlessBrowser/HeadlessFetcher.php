@@ -5,6 +5,7 @@ namespace GiveTwice\ProductInfoFetcher\HeadlessBrowser;
 use GiveTwice\ProductInfoFetcher\HeadlessBrowser\Exceptions\BrowserException;
 use GiveTwice\ProductInfoFetcher\HeadlessBrowser\Exceptions\NodeNotFoundException;
 use InvalidArgumentException;
+use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\Process;
 
 class HeadlessFetcher
@@ -99,7 +100,11 @@ class HeadlessFetcher
         ]);
 
         $process->setTimeout($this->timeout + self::PROCESS_TIMEOUT_BUFFER);
-        $process->run();
+        try {
+            $process->run();
+        } catch (ProcessTimedOutException $e) {
+            throw new BrowserException('browser_process_timeout', previous: $e);
+        }
 
         $output = json_decode($process->getOutput(), true);
 
@@ -129,6 +134,8 @@ class HeadlessFetcher
             html: $output['html'],
             statusCode: $output['statusCode'],
             finalUrl: $output['finalUrl'],
+            timedOut: $output['timedOut'] ?? false,
+            error: $output['error'] ?? null,
         );
     }
 

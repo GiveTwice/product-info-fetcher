@@ -8,5 +8,7 @@ readonly class HeadlessFetchResult
         public string $html,
         public int $statusCode,
         public string $finalUrl,
+        public bool $timedOut = false,
+        public ?string $error = null,
     ) {}
 }

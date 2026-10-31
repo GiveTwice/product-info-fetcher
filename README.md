@@ -6,6 +6,72 @@
 
 A PHP package that fetches product information from any URL and returns structured data. It parses JSON-LD structured data, Open Graph meta tags, and HTML image elements to extract product details like name, description, price, and images.
 
+## Shop support and safe fetching
+
+One fetch makes one HTTP GET chain (up to five ordinary redirects), with a normal
+Chrome user agent and no retries. An opt-in fallback can make one browser navigation
+after HTTP 403. `preferHeadless()` makes only the browser navigation. A browser also
+loads scripts and supporting resources; it does not mean one network subrequest.
+No CAPTCHA solving, stealth plugin, automation-hiding flags or consent clicks are used.
+
+| Shop | Extraction | Verified from this box |
+| --- | --- | --- |
+| bol.com BE + NL | JSON-LD and product/OG metadata when accessible | Both HTTP and Chrome blocked (403); successful parsing unverified |
+| coolblue.be NL + FR | JSON-LD, metadata, images, variants and SoldOut availability | Product name, EUR price and image passed over HTTP |
+| amazon.com.be, amazon.nl, amazon.de, amazon.fr | Isolated main-product HTML parser plus structured metadata | Two products per domain passed with plain Chrome; HTTP returned challenge pages |
+| IKEA BE | Generic structured metadata when accessible | Sampled NL/FR URLs blocked (403); successful parsing unverified |
+| Zalando, MediaMarkt, Fnac, Vanden Borre, Dreamland, AVA | Generic parsers only | No shop-specific support claim or live coverage in this change |
+
+Observations are from a datacenter IP, no proxy, on 2026-10-31. Production uses a
+proxy, so a block here does not establish a production block. Successful access can
+also change. Bol may need an authorized official catalog integration if production
+is blocked; this package does not include API credentials or an official API client.
+
+### Explicit outcomes and diagnostics
+
+Existing `fetch()`, `parse()` and `fetchAndParse()` calls remain available, including
+HTTP exceptions on the legacy fetch path. To receive outcomes for HTTP, network and
+browser failures instead, use the additive `fetchResult()` method:
+
+```php
+use GiveTwice\ProductInfoFetcher\Enum\FetchOutcome;
+
+$product = (new ProductInfoFetcher($url))->fetchResult();
+
+if ($product->outcome === FetchOutcome::Success) {
+    // Use product name, priceInCents, imageUrl and optional description.
+}
+if ($product->outcome === FetchOutcome::Consent && $product->hasProductData()) {
+    // Product data was readable without accepting consent. Apply your app policy.
+}
+
+$product->finalUrl;   // Effective transport URL, distinct from canonical product url
+$product->httpStatus; // Last transport status; null without a response
+$product->attempts;   // Ordered TransportAttempt objects, HTTP and browser separately
+```
+
+| Outcome | Meaning |
+| --- | --- |
+| `success` | Nonempty name, price and image were extracted |
+| `incomplete` | Page fetched, but one of those fields is absent, including generic storefronts |
+| `blocked` | HTTP 401/403/429 or recognized challenge page, including HTTP 200 challenges |
+| `consent` | Recognized consent interstitial; any readable product fields are retained |
+| `removed` | HTTP 404/410 or recognized page-not-found text |
+| `error` | Network/browser failure, another HTTP error, or a timeout without useful product data |
+
+Unavailable products retain their data and `availability` separately from the fetch
+outcome. A timed-out browser navigation can still return usable product data; inspect
+`attempts[*]->timedOut` and `error` rather than assuming success means no timeout.
+Attempts expose `transport`, `statusCode`, `finalUrl`, `durationMs`, `timedOut`, and a
+credential-free error category. URL fields can contain user-supplied queries: redact
+them before logging. `toArray()` includes all new fields, with enum string values.
+`isComplete()` keeps its historical name-plus-description meaning; use
+`hasProductData()` for the name-plus-price-plus-image predicate.
+
+Page detection is conservative and cannot recognize every shop's changing walls.
+Do not treat a page title alone as product success. Map blocked/consent/removed/error
+and incomplete results to a friendly manual entry form instead of retrying in a loop.
+
 ## Installation
 
 ```bash
@@ -123,7 +189,7 @@ $product = (new ProductInfoFetcher('https://example.com/product'))
 
 ### Custom Headers
 
-For sites with stricter bot detection, you can add extra HTTP headers to mimic a real browser:
+You can configure additional HTTP headers when a shop requires them:
 
 ```php
 $product = (new ProductInfoFetcher('https://example.com/product'))
@@ -164,9 +230,9 @@ The proxy is used for both regular HTTP requests (via Guzzle/cURL) and headless 
 
 ### Headless Browser
 
-Some sites use advanced bot protection (Akamai, Cloudflare) that blocks simple HTTP requests. For these sites, you can use a headless Chrome browser via Puppeteer to fetch the page.
+Some shops render their product data with JavaScript. An optional plain Puppeteer browser can read that DOM. It does not solve challenges, click consent, or hide automation.
 
-**Prefer Headless (recommended for known-protected sites):**
+**Prefer Headless (for pages needing JavaScript):**
 
 ```php
 $product = (new ProductInfoFetcher('https://example.com/product'))
@@ -174,7 +240,7 @@ $product = (new ProductInfoFetcher('https://example.com/product'))
     ->fetchAndParse();
 ```
 
-Use `preferHeadless()` when you know the site has bot protection. This skips the HTTP request entirely and uses headless Chrome directly. This is more efficient because attempting an HTTP request first can get your IP flagged, causing subsequent headless requests to also fail.
+Use `preferHeadless()` to skip HTTP and make one browser navigation directly. This worked for the sampled Amazon pages from this box. It does not guarantee access from another IP or at another time.
 
 **Fallback Mode:**
 
@@ -189,14 +255,14 @@ When enabled, the fetcher will:
 2. If blocked with a 403 status, automatically retry using a headless Chrome browser
 3. Parse the resulting HTML as usual
 
-Use `enableHeadlessFallback()` when you're unsure if the site has bot protection and want to try the faster HTTP request first.
+Fallback is opt in and limited to one browser navigation after HTTP 403. HTTP 200 challenge pages return `blocked`; callers can choose `preferHeadless()` for future user actions. There are no automatic retries or consent interactions.
 
 **Requirements:**
 
 To use the headless fallback, you need Node.js 18+ and Puppeteer installed:
 
 ```bash
-npm install puppeteer@^23.0 puppeteer-extra@^3.3 puppeteer-extra-plugin-stealth@^2.11
+npm install
 ```
 
 On Linux servers, you may also need system dependencies for headless Chrome:
@@ -313,8 +379,22 @@ High-resolution images are prioritized when available.
 ## Testing
 
 ```bash
-composer test
+vendor/bin/pest
+vendor/bin/pint
+# Browser tests use only a local HTTP test server, no retailer requests:
+npm install
+CHROME_PATH=/usr/bin/google-chrome node --test tests/Browser/fetch-html.test.cjs
+
+# Explicit opt-in retailer checks. Failures, including blocks, fail the assertions:
+LIVE=1 vendor/bin/pest --group=live
+LIVE=1 LIVE_BROWSER=1 CHROME_PATH=/usr/bin/google-chrome vendor/bin/pest --group=live --filter=amazon
 ```
+
+The default suite replays saved real HTML without network access. CI always skips
+live tests even if `LIVE=1` is set. `tests/Live/urls.php` contains the product list.
+`LIVE_BROWSER=1` uses a single direct browser navigation per URL. Optional
+`LIVE_REPORT=/tmp/product-info-live.jsonl` records each result and transport telemetry.
+See [fixture provenance and coverage gaps](tests/Fixtures/Shops/README.md).
 
 ## Changelog
 
