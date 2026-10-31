@@ -13,6 +13,7 @@ use GiveTwice\ProductInfoFetcher\HeadlessBrowser\HeadlessFetchResult;
 use GiveTwice\ProductInfoFetcher\Parsers\HtmlImageParser;
 use GiveTwice\ProductInfoFetcher\Parsers\JsonLdParser;
 use GiveTwice\ProductInfoFetcher\Parsers\MetaTagParser;
+use GiveTwice\ProductInfoFetcher\Parsers\Shops\AmazonParser;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
@@ -336,11 +337,14 @@ class ProductInfoFetcher
 
     private function parseHtml(string $html): ProductInfo
     {
-        $jsonLdResult = (new JsonLdParser($html, $this->url))->parse();
-        $metaTagResult = (new MetaTagParser($html, $this->url))->parse();
+        $attempt = $this->attempts === [] ? null : $this->attempts[array_key_last($this->attempts)];
+        $url = $attempt?->finalUrl ?? $this->url;
+        $jsonLdResult = (new JsonLdParser($html, $url))->parse();
+        $shopResult = (new AmazonParser($html, $url))->parse();
+        $metaTagResult = (new MetaTagParser($html, $url))->parse();
         $htmlImageResult = (new HtmlImageParser($html))->parse();
 
-        return $this->mergeResults($jsonLdResult, $metaTagResult, $htmlImageResult);
+        return $this->mergeResults($jsonLdResult, $shopResult, $metaTagResult, $htmlImageResult);
     }
 
     private function mergeResults(ProductInfo ...$results): ProductInfo

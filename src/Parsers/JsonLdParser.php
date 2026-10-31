@@ -62,23 +62,36 @@ class JsonLdParser implements ParserInterface
                 continue;
             }
 
-            if (isset($data['@graph'])) {
-                foreach ($data['@graph'] as $item) {
-                    if ($this->isProductType($item)) {
-                        return $item;
-                    }
-                    if ($this->isProductGroupType($item)) {
-                        return $this->extractFromProductGroup($item);
-                    }
+            $product = $this->findProduct($data);
+            if ($product !== null) {
+                return $product;
+            }
+        }
+
+        return null;
+    }
+
+    private function findProduct(array $data): ?array
+    {
+        if ($this->isProductType($data)) {
+            return $data;
+        }
+        if ($this->isProductGroupType($data)) {
+            return $this->extractFromProductGroup($data);
+        }
+        // Prefer the page's main entity to recommendation lists.
+        if (isset($data['mainEntity']) && is_array($data['mainEntity'])) {
+            $product = $this->findProduct($data['mainEntity']);
+            if ($product !== null) {
+                return $product;
+            }
+        }
+        foreach ($data as $value) {
+            if (is_array($value)) {
+                $product = $this->findProduct($value);
+                if ($product !== null) {
+                    return $product;
                 }
-            }
-
-            if ($this->isProductType($data)) {
-                return $data;
-            }
-
-            if ($this->isProductGroupType($data)) {
-                return $this->extractFromProductGroup($data);
             }
         }
 
@@ -120,7 +133,7 @@ class JsonLdParser implements ParserInterface
             return null;
         }
 
-        foreach ($productGroup['hasVariant'] as $variant) {
+        foreach ($this->variants($productGroup) as $variant) {
             if (! $this->isProductType($variant)) {
                 continue;
             }
@@ -130,18 +143,40 @@ class JsonLdParser implements ParserInterface
                 $currentUrl = $this->normalizeUrl($this->currentUrl);
 
                 if ($variantUrl === $currentUrl) {
-                    return $variant;
+                    return $this->inheritGroup($productGroup, $variant);
                 }
             }
         }
 
-        foreach ($productGroup['hasVariant'] as $variant) {
+        foreach ($this->variants($productGroup) as $variant) {
             if ($this->isProductType($variant) && $this->hasAvailableOffer($variant)) {
-                return $variant;
+                return $this->inheritGroup($productGroup, $variant);
+            }
+        }
+
+        foreach ($this->variants($productGroup) as $variant) {
+            if ($this->isProductType($variant)) {
+                return $this->inheritGroup($productGroup, $variant);
             }
         }
 
         return null;
+    }
+
+    private function variants(array $group): array
+    {
+        $variants = $group['hasVariant'];
+
+        return isset($variants['@type']) ? [$variants] : array_filter($variants, 'is_array');
+    }
+
+    private function inheritGroup(array $group, array $variant): array
+    {
+        // Identity, URL and offers belong to the variant. Only descriptive parent
+        // metadata is inherited, so an unavailable variant cannot get a sibling price.
+        return array_replace(array_intersect_key($group, array_flip([
+            'name', 'description', 'brand', 'image', 'aggregateRating',
+        ])), array_filter($variant, fn ($value) => $value !== null));
     }
 
     private function normalizeUrl(string $url): string
@@ -210,25 +245,24 @@ class JsonLdParser implements ParserInterface
         }
 
         $offers = $data['offers'];
-
-        if (isset($offers['price'])) {
-            return [
-                'priceInCents' => $this->normalizePriceToCents($offers['price']),
-                'priceCurrency' => $offers['priceCurrency'] ?? null,
-            ];
+        foreach (isset($offers[0]) ? $offers : [$offers] as $offer) {
+            if (! is_array($offer)) {
+                continue;
+            }
+            $spec = $offer['priceSpecification'] ?? [];
+            if (isset($spec[0])) {
+                $spec = $spec[0];
+            }
+            $price = $offer['price'] ?? $offer['lowPrice'] ?? $spec['price'] ?? null;
+            if ($price !== null) {
+                return [
+                    'priceInCents' => $this->normalizePriceToCents($price),
+                    'priceCurrency' => $offer['priceCurrency'] ?? $spec['priceCurrency'] ?? null,
+                ];
+            }
         }
 
-        if (isset($offers[0]['price'])) {
-            return [
-                'priceInCents' => $this->normalizePriceToCents($offers[0]['price']),
-                'priceCurrency' => $offers[0]['priceCurrency'] ?? null,
-            ];
-        }
-
-        return [
-            'priceInCents' => null,
-            'priceCurrency' => null,
-        ];
+        return ['priceInCents' => null, 'priceCurrency' => null];
     }
 
     private function extractBrand(array $data): ?string
