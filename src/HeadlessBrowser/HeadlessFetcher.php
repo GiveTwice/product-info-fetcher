@@ -129,6 +129,8 @@ class HeadlessFetcher
             html: $output['html'],
             statusCode: $output['statusCode'],
             finalUrl: $output['finalUrl'],
+            timedOut: $output['timedOut'] ?? false,
+            error: $output['error'] ?? null,
         );
     }
 

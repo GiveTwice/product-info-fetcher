@@ -1,7 +1,4 @@
-const puppeteer = require('puppeteer-extra');
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-
-puppeteer.use(StealthPlugin());
+const puppeteer = require('puppeteer');
 
 let request;
 try {
@@ -47,6 +44,8 @@ function parseProxyUrl(proxyUrl) {
 
 (async () => {
     let browser;
+    let page;
+    let statusCode = 0;
     try {
         const proxy = parseProxyUrl(request.proxy);
 
@@ -54,15 +53,12 @@ function parseProxyUrl(proxyUrl) {
             headless: true,
             pipe: true,
             timeout: 30000,
-            ignoreDefaultArgs: ['--enable-automation'],
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
                 '--disable-gpu',
                 '--disable-software-rasterizer',
-                '--disable-blink-features=AutomationControlled',
-                '--disable-features=IsolateOrigins,site-per-process',
                 '--window-size=1920,1080',
             ],
         };
@@ -77,7 +73,12 @@ function parseProxyUrl(proxyUrl) {
 
         browser = await puppeteer.launch(launchOptions);
 
-        const page = await browser.newPage();
+        page = await browser.newPage();
+        page.on('response', response => {
+            if (response.request().isNavigationRequest() && response.frame() === page.mainFrame()) {
+                statusCode = response.status();
+            }
+        });
 
         if (proxy && proxy.auth) {
             await page.authenticate(proxy.auth);
@@ -134,7 +135,7 @@ function parseProxyUrl(proxyUrl) {
         ]);
 
         const html = await page.content();
-        const statusCode = response ? response.status() : 200;
+        statusCode = response ? response.status() : statusCode;
 
         if (isBlockedStatusCode(statusCode)) {
             console.log(JSON.stringify({
@@ -142,23 +143,35 @@ function parseProxyUrl(proxyUrl) {
                 error: `Request failed (status: ${statusCode})`,
                 statusCode: statusCode,
                 html: html,
-                finalUrl: response ? response.url() : request.url,
+                finalUrl: page.url(),
             }));
-            process.exit(1);
+            process.exitCode = 1;
+            return;
         }
 
         console.log(JSON.stringify({
             success: true,
             html: html,
             statusCode: statusCode,
-            finalUrl: response ? response.url() : request.url,
+            finalUrl: page.url(),
         }));
     } catch (error) {
+        // A navigation timeout can still leave a useful DOM. Preserve it without
+        // another navigation, retry, or interaction with consent/challenge pages.
+        let html = '';
+        if (page) {
+            try { html = await page.content(); } catch (_) {}
+        }
+        const timedOut = error.name === 'TimeoutError';
         console.log(JSON.stringify({
-            success: false,
-            error: error.message,
+            success: timedOut && html.length > 0,
+            html,
+            statusCode,
+            finalUrl: page ? page.url() : request.url,
+            timedOut,
+            error: timedOut ? 'navigation_timeout' : 'browser_error',
         }));
-        process.exit(1);
+        if (!timedOut || !html) process.exitCode = 1;
     } finally {
         if (browser) {
             await browser.close();

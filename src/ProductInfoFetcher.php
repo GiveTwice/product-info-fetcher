@@ -3,6 +3,11 @@
 namespace GiveTwice\ProductInfoFetcher;
 
 use GiveTwice\ProductInfoFetcher\DataTransferObjects\ProductInfo;
+use GiveTwice\ProductInfoFetcher\DataTransferObjects\TransportAttempt;
+use GiveTwice\ProductInfoFetcher\Detection\PageOutcomeDetector;
+use GiveTwice\ProductInfoFetcher\Enum\FetchOutcome;
+use GiveTwice\ProductInfoFetcher\HeadlessBrowser\Exceptions\BrowserException;
+use GiveTwice\ProductInfoFetcher\HeadlessBrowser\Exceptions\HeadlessBrowserException;
 use GiveTwice\ProductInfoFetcher\HeadlessBrowser\HeadlessFetcher;
 use GiveTwice\ProductInfoFetcher\HeadlessBrowser\HeadlessFetchResult;
 use GiveTwice\ProductInfoFetcher\Parsers\HtmlImageParser;
@@ -10,8 +15,10 @@ use GiveTwice\ProductInfoFetcher\Parsers\JsonLdParser;
 use GiveTwice\ProductInfoFetcher\Parsers\MetaTagParser;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\RequestOptions;
+use GuzzleHttp\TransferStats;
 use RuntimeException;
 
 class ProductInfoFetcher
@@ -20,7 +27,7 @@ class ProductInfoFetcher
 
     private const DEFAULT_CONNECT_TIMEOUT = 3;
 
-    private const DEFAULT_USER_AGENT = 'ProductInfoFetcher/1.0';
+    private const DEFAULT_USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
 
     private const DEFAULT_ACCEPT_LANGUAGE = 'en-US,en;q=0.5';
 
@@ -38,6 +45,11 @@ class ProductInfoFetcher
     private ?string $proxy = null;
 
     private ?string $html = null;
+
+    /** @var list<TransportAttempt> */
+    private array $attempts = [];
+
+    private bool $returnOutcomes = false;
 
     private ?ClientInterface $client = null;
 
@@ -58,6 +70,7 @@ class ProductInfoFetcher
 
     public function setHtml(string $html): self
     {
+        $this->attempts = [];
         $this->html = $html;
 
         return $this;
@@ -145,6 +158,13 @@ class ProductInfoFetcher
         return $this;
     }
 
+    public function setHeadlessFetcher(HeadlessFetcher $fetcher): self
+    {
+        $this->headlessFetcher = $fetcher;
+
+        return $this;
+    }
+
     private function getHeadlessFetcher(): HeadlessFetcher
     {
         if ($this->headlessFetcher === null) {
@@ -160,24 +180,64 @@ class ProductInfoFetcher
             throw new RuntimeException('No URL provided. Pass a URL to the constructor or use setHtml() instead.');
         }
 
+        $this->html = null;
+        $this->attempts = [];
+
         if ($this->preferHeadless) {
-            $this->html = $this->fetchViaHeadless()->html;
+            $this->captureHeadless();
 
             return $this;
         }
 
         try {
             $this->html = $this->fetchViaHttp();
-        } catch (ClientException $e) {
-            if ($e->getCode() === 403 && $this->headlessFallbackEnabled) {
-                $result = $this->fetchViaHeadless();
-                $this->html = $result->html;
-            } else {
+        } catch (TransferException $e) {
+            // Keep the original HTTP response, independently of a browser fallback.
+            if ($e instanceof RequestException && $e->hasResponse()) {
+                $this->html = (string) $e->getResponse()->getBody();
+            }
+
+            $status = $this->attempts[0]->statusCode ?? null;
+            if ($this->headlessFallbackEnabled && $status === 403) {
+                $this->captureHeadless();
+            } elseif (! $this->returnOutcomes) {
                 throw $e;
             }
         }
 
         return $this;
+    }
+
+    /** Return explicit outcomes instead of throwing transport/HTTP failures. */
+    public function fetchResult(): ProductInfo
+    {
+        $this->returnOutcomes = true;
+        try {
+            $this->fetch();
+
+            return $this->parse();
+        } finally {
+            $this->returnOutcomes = false;
+        }
+    }
+
+    private function captureHeadless(): void
+    {
+        $started = microtime(true);
+        try {
+            $result = $this->fetchViaHeadless();
+            $this->html = $result->html;
+            $this->attempts[] = new TransportAttempt('browser', $result->statusCode ?: null, $result->finalUrl,
+                (microtime(true) - $started) * 1000, $result->timedOut, $result->error);
+        } catch (HeadlessBrowserException $e) {
+            $blocked = $e instanceof BrowserException ? $e : null;
+            $this->html = $blocked?->getResponseHtml() ?? $this->html ?? '';
+            $this->attempts[] = new TransportAttempt('browser', $blocked?->getStatusCode(),
+                $blocked?->getFinalUrl() ?? $this->url, (microtime(true) - $started) * 1000, false, 'browser_error');
+            if (! $this->returnOutcomes) {
+                throw $e;
+            }
+        }
     }
 
     private function fetchViaHttp(): string
@@ -206,7 +266,25 @@ class ProductInfoFetcher
             $options[RequestOptions::PROXY] = $this->proxy;
         }
 
-        $response = $client->get($this->url, $options);
+        $finalUrl = $this->url;
+        $options[RequestOptions::ALLOW_REDIRECTS]['on_redirect'] = function ($request, $response, $uri) use (&$finalUrl): void {
+            $finalUrl = (string) $uri;
+        };
+        $options[RequestOptions::ON_STATS] = function (TransferStats $stats) use (&$finalUrl): void {
+            $finalUrl = (string) $stats->getEffectiveUri();
+        };
+        $started = microtime(true);
+        try {
+            $response = $client->get($this->url, $options);
+            $this->attempts[] = new TransportAttempt('http', $response->getStatusCode(), $finalUrl,
+                (microtime(true) - $started) * 1000);
+        } catch (TransferException $e) {
+            $status = $e instanceof RequestException ? $e->getResponse()?->getStatusCode() : null;
+            $this->attempts[] = new TransportAttempt('http', $status, $finalUrl,
+                (microtime(true) - $started) * 1000, str_contains($e->getMessage(), 'cURL error 28'), 'http_error');
+            $this->html = '';
+            throw $e;
+        }
 
         return (string) $response->getBody();
     }
@@ -236,7 +314,19 @@ class ProductInfoFetcher
             throw new RuntimeException('No HTML to parse. Call fetch() first.');
         }
 
-        return $this->parseHtml($this->html);
+        $attempt = $this->attempts === [] ? null : $this->attempts[array_key_last($this->attempts)];
+        $outcome = (new PageOutcomeDetector)->detect($this->html, $attempt?->statusCode, $attempt?->finalUrl ?? $this->url);
+        $result = in_array($outcome, [FetchOutcome::Blocked, FetchOutcome::Removed, FetchOutcome::Error], true)
+            ? new ProductInfo : $this->parseHtml($this->html ?: '<html></html>');
+        $result->finalUrl = $attempt?->finalUrl ?? $this->url;
+        $result->httpStatus = $attempt?->statusCode;
+        $result->attempts = $this->attempts;
+        $result->outcome = $outcome ?? ($result->hasProductData() ? FetchOutcome::Success : FetchOutcome::Incomplete);
+        if ($outcome === null && ! $result->hasProductData() && ($attempt?->error !== null || $attempt?->timedOut)) {
+            $result->outcome = FetchOutcome::Error;
+        }
+
+        return $result;
     }
 
     public function fetchAndParse(): ProductInfo
@@ -250,30 +340,7 @@ class ProductInfoFetcher
         $metaTagResult = (new MetaTagParser($html, $this->url))->parse();
         $htmlImageResult = (new HtmlImageParser($html))->parse();
 
-        if ($jsonLdResult->isComplete()) {
-            $this->appendImagesFromSources($jsonLdResult, $metaTagResult, $htmlImageResult);
-
-            return $jsonLdResult;
-        }
-
-        if ($metaTagResult->isComplete()) {
-            $this->appendImagesFromSources($metaTagResult, $jsonLdResult, $htmlImageResult);
-
-            return $metaTagResult;
-        }
-
         return $this->mergeResults($jsonLdResult, $metaTagResult, $htmlImageResult);
-    }
-
-    private function appendImagesFromSources(ProductInfo $target, ProductInfo ...$sources): void
-    {
-        foreach ($sources as $source) {
-            foreach ($source->allImageUrls as $imageUrl) {
-                if (! in_array($imageUrl, $target->allImageUrls, true)) {
-                    $target->allImageUrls[] = $imageUrl;
-                }
-            }
-        }
     }
 
     private function mergeResults(ProductInfo ...$results): ProductInfo
