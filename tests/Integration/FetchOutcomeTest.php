@@ -1,6 +1,7 @@
 <?php
 
 use GiveTwice\ProductInfoFetcher\Enum\FetchOutcome;
+use GiveTwice\ProductInfoFetcher\HeadlessBrowser\Exceptions\BrowserException;
 use GiveTwice\ProductInfoFetcher\HeadlessBrowser\HeadlessFetcher;
 use GiveTwice\ProductInfoFetcher\HeadlessBrowser\HeadlessFetchResult;
 use GiveTwice\ProductInfoFetcher\ProductInfoFetcher;
@@ -86,4 +87,22 @@ it('captures the effective URL through redirects and retains one request chain',
     $result = (new ProductInfoFetcher('https://example.com/old'))
         ->setClient(createMockClient($history, [new Response(302, ['Location' => 'https://example.com/new']), new Response(200, [], getFixture('JsonLd/complete-product.html'))]))->fetchResult();
     expect($result->httpStatus)->toBe(200)->and($result->finalUrl)->toBe('https://example.com/new')->and($result->attempts)->toHaveCount(1);
+});
+
+it('reports a blocked browser response with both transport diagnostics', function () {
+    $browser = new class extends HeadlessFetcher
+    {
+        public function fetch(string $url): HeadlessFetchResult
+        {
+            throw BrowserException::blocked('Forbidden', 403, '<title>Access denied</title>', [], 'https://example.com/challenge');
+        }
+    };
+    $history = [];
+    $result = (new ProductInfoFetcher('https://example.com/product'))
+        ->setClient(createMockClient($history, [new Response(403, [], 'Forbidden')]))
+        ->setHeadlessFetcher($browser)->enableHeadlessFallback()->fetchResult();
+
+    expect($result->outcome)->toBe(FetchOutcome::Blocked)->and($result->name)->toBeNull()
+        ->and($result->attempts)->toHaveCount(2)->and($result->attempts[0]->statusCode)->toBe(403)
+        ->and($result->httpStatus)->toBe(403)->and($result->finalUrl)->toBe('https://example.com/challenge');
 });
