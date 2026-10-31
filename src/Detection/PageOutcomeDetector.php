@@ -17,7 +17,7 @@ class PageOutcomeDetector
         $visible = preg_replace('/<(script|style)\b[^>]*>.*?<\/\1>/si', '', $html);
         $text = html_entity_decode(strip_tags($visible), ENT_QUOTES | ENT_HTML5, 'UTF-8');
         if (preg_match('/validateCaptcha|challenge-platform|cf-chl-|id=["\']challenge-form/i', $html)
-            || preg_match('/captcha|access denied|robot check|verify (that )?you are human|unusual traffic|automated access|pardon our interruption|toegang geweigerd/i', $text)
+            || preg_match('/captcha|ip address.{0,60}(is blocked|temporarily blocked)|access denied|robot check|verify (that )?you are human|unusual traffic|automated access|pardon our interruption|toegang geweigerd/i', $text)
             || in_array($status, [401, 403, 429], true)) {
             return FetchOutcome::Blocked;
         }

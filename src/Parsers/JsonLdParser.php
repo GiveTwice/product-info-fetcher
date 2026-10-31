@@ -58,7 +58,7 @@ class JsonLdParser implements ParserInterface
         foreach ($matches[1] as $jsonString) {
             $data = json_decode(trim($jsonString), true);
 
-            if (! $data) {
+            if (! is_array($data)) {
                 continue;
             }
 
@@ -116,7 +116,7 @@ class JsonLdParser implements ParserInterface
 
         if (is_array($type)) {
             foreach ($type as $t) {
-                if (self::stripSchemaOrgPrefix($t) === $expected) {
+                if (is_string($t) && self::stripSchemaOrgPrefix($t) === $expected) {
                     return true;
                 }
             }
@@ -124,7 +124,7 @@ class JsonLdParser implements ParserInterface
             return false;
         }
 
-        return self::stripSchemaOrgPrefix($type) === $expected;
+        return is_string($type) && self::stripSchemaOrgPrefix($type) === $expected;
     }
 
     private function extractFromProductGroup(array $productGroup): ?array

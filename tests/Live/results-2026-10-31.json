@@ -1,0 +1,665 @@
+{
+    "environment": "Hetzner datacenter IP, no proxy; Chrome /usr/bin/google-chrome, plain Puppeteer",
+    "results": [
+        {
+            "shop": "amazon.nl",
+            "url": "https://www.amazon.nl/dp/B09Y2MYL5C",
+            "checkedAt": "2026-10-31T10:59:33+00:00",
+            "outcome": "blocked",
+            "httpStatus": 200,
+            "name": null,
+            "priceInCents": null,
+            "priceCurrency": null,
+            "imageUrl": null,
+            "finalUrl": "https://www.amazon.nl/dp/B09Y2MYL5C",
+            "attempts": [
+                {
+                    "transport": "http",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.amazon.nl/dp/B09Y2MYL5C",
+                    "durationMs": 137.95208930969238,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        },
+        {
+            "shop": "IKEA BE",
+            "url": "https://www.ikea.com/be/nl/p/billy-boekenkast-wit-00263850/",
+            "checkedAt": "2026-10-31T10:59:33+00:00",
+            "outcome": "blocked",
+            "httpStatus": 403,
+            "name": null,
+            "priceInCents": null,
+            "priceCurrency": null,
+            "imageUrl": null,
+            "finalUrl": "https://www.ikea.com/be/nl/p/billy-boekenkast-wit-00263850/",
+            "attempts": [
+                {
+                    "transport": "http",
+                    "statusCode": 403,
+                    "finalUrl": "https://www.ikea.com/be/nl/p/billy-boekenkast-wit-00263850/",
+                    "durationMs": 28.164148330688477,
+                    "timedOut": false,
+                    "error": "http_error"
+                }
+            ]
+        },
+        {
+            "shop": "amazon.de",
+            "url": "https://www.amazon.de/dp/B00BLHX6J8",
+            "checkedAt": "2026-10-31T10:59:33+00:00",
+            "outcome": "blocked",
+            "httpStatus": 200,
+            "name": null,
+            "priceInCents": null,
+            "priceCurrency": null,
+            "imageUrl": null,
+            "finalUrl": "https://www.amazon.de/dp/B00BLHX6J8",
+            "attempts": [
+                {
+                    "transport": "http",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.amazon.de/dp/B00BLHX6J8",
+                    "durationMs": 66.28799438476562,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        },
+        {
+            "shop": "coolblue.be",
+            "url": "https://www.coolblue.be/nl/product/905648/sony-wh-1000xm5-zwart.html",
+            "checkedAt": "2026-10-31T10:59:34+00:00",
+            "outcome": "success",
+            "httpStatus": 200,
+            "name": "Sony WH-1000XM5 Zwart",
+            "priceInCents": 24900,
+            "priceCurrency": "EUR",
+            "imageUrl": "https://image.coolblue.nl/500x500/products/1755757",
+            "finalUrl": "https://www.coolblue.be/nl/product/905648/sony-wh-1000xm5-zwart.html",
+            "attempts": [
+                {
+                    "transport": "http",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.coolblue.be/nl/product/905648/sony-wh-1000xm5-zwart.html",
+                    "durationMs": 907.7520370483398,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        },
+        {
+            "shop": "IKEA BE",
+            "url": "https://www.ikea.com/be/fr/p/kallax-etagere-blanc-20275814/",
+            "checkedAt": "2026-10-31T10:59:34+00:00",
+            "outcome": "blocked",
+            "httpStatus": 403,
+            "name": null,
+            "priceInCents": null,
+            "priceCurrency": null,
+            "imageUrl": null,
+            "finalUrl": "https://www.ikea.com/be/fr/p/kallax-etagere-blanc-20275814/",
+            "attempts": [
+                {
+                    "transport": "http",
+                    "statusCode": 403,
+                    "finalUrl": "https://www.ikea.com/be/fr/p/kallax-etagere-blanc-20275814/",
+                    "durationMs": 31.672954559326172,
+                    "timedOut": false,
+                    "error": "http_error"
+                }
+            ]
+        },
+        {
+            "shop": "bol.com BE",
+            "url": "https://www.bol.com/be/nl/p/lego-icons-orchidee-10311/9300000080312206/",
+            "checkedAt": "2026-10-31T10:59:34+00:00",
+            "outcome": "blocked",
+            "httpStatus": 403,
+            "name": null,
+            "priceInCents": null,
+            "priceCurrency": null,
+            "imageUrl": null,
+            "finalUrl": "https://www.bol.com/be/nl/p/lego-icons-orchidee-10311/9300000080312206/",
+            "attempts": [
+                {
+                    "transport": "http",
+                    "statusCode": 403,
+                    "finalUrl": "https://www.bol.com/be/nl/p/lego-icons-orchidee-10311/9300000080312206/",
+                    "durationMs": 93.25408935546875,
+                    "timedOut": false,
+                    "error": "http_error"
+                }
+            ]
+        },
+        {
+            "shop": "amazon.com.be",
+            "url": "https://www.amazon.com.be/dp/B00BLHX6J8",
+            "checkedAt": "2026-10-31T10:59:34+00:00",
+            "outcome": "blocked",
+            "httpStatus": 200,
+            "name": null,
+            "priceInCents": null,
+            "priceCurrency": null,
+            "imageUrl": null,
+            "finalUrl": "https://www.amazon.com.be/dp/B00BLHX6J8",
+            "attempts": [
+                {
+                    "transport": "http",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.amazon.com.be/dp/B00BLHX6J8",
+                    "durationMs": 48.92587661743164,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        },
+        {
+            "shop": "bol.com NL",
+            "url": "https://www.bol.com/nl/nl/p/lego-icons-wilde-bloemen-boeket-10313/9300000131876375/",
+            "checkedAt": "2026-10-31T10:59:34+00:00",
+            "outcome": "blocked",
+            "httpStatus": 403,
+            "name": null,
+            "priceInCents": null,
+            "priceCurrency": null,
+            "imageUrl": null,
+            "finalUrl": "https://www.bol.com/nl/nl/p/lego-icons-wilde-bloemen-boeket-10313/9300000131876375/",
+            "attempts": [
+                {
+                    "transport": "http",
+                    "statusCode": 403,
+                    "finalUrl": "https://www.bol.com/nl/nl/p/lego-icons-wilde-bloemen-boeket-10313/9300000131876375/",
+                    "durationMs": 131.3040256500244,
+                    "timedOut": false,
+                    "error": "http_error"
+                }
+            ]
+        },
+        {
+            "shop": "coolblue.be",
+            "url": "https://www.coolblue.be/fr/produit/905648/sony-wh-1000xm5-noir.html",
+            "checkedAt": "2026-10-31T10:59:35+00:00",
+            "outcome": "success",
+            "httpStatus": 200,
+            "name": "Sony WH-1000XM5 Noir",
+            "priceInCents": 24900,
+            "priceCurrency": "EUR",
+            "imageUrl": "https://image.coolblue.nl/500x500/products/1755757",
+            "finalUrl": "https://www.coolblue.be/fr/produit/905648/sony-wh-1000xm5-noir.html",
+            "attempts": [
+                {
+                    "transport": "http",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.coolblue.be/fr/produit/905648/sony-wh-1000xm5-noir.html",
+                    "durationMs": 554.8679828643799,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        },
+        {
+            "shop": "bol.com NL",
+            "url": "https://www.bol.com/nl/nl/p/lego-icons-orchidee-10311/9300000080312206/",
+            "checkedAt": "2026-10-31T10:59:35+00:00",
+            "outcome": "blocked",
+            "httpStatus": 403,
+            "name": null,
+            "priceInCents": null,
+            "priceCurrency": null,
+            "imageUrl": null,
+            "finalUrl": "https://www.bol.com/nl/nl/p/lego-icons-orchidee-10311/9300000080312206/",
+            "attempts": [
+                {
+                    "transport": "http",
+                    "statusCode": 403,
+                    "finalUrl": "https://www.bol.com/nl/nl/p/lego-icons-orchidee-10311/9300000080312206/",
+                    "durationMs": 90.18993377685547,
+                    "timedOut": false,
+                    "error": "http_error"
+                }
+            ]
+        },
+        {
+            "shop": "amazon.nl",
+            "url": "https://www.amazon.nl/dp/B00BLHX6J8",
+            "checkedAt": "2026-10-31T10:59:35+00:00",
+            "outcome": "blocked",
+            "httpStatus": 200,
+            "name": null,
+            "priceInCents": null,
+            "priceCurrency": null,
+            "imageUrl": null,
+            "finalUrl": "https://www.amazon.nl/dp/B00BLHX6J8",
+            "attempts": [
+                {
+                    "transport": "http",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.amazon.nl/dp/B00BLHX6J8",
+                    "durationMs": 75.99902153015137,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        },
+        {
+            "shop": "bol.com BE",
+            "url": "https://www.bol.com/be/nl/p/lego-icons-wilde-bloemen-boeket-10313/9300000131876375/",
+            "checkedAt": "2026-10-31T10:59:35+00:00",
+            "outcome": "blocked",
+            "httpStatus": 403,
+            "name": null,
+            "priceInCents": null,
+            "priceCurrency": null,
+            "imageUrl": null,
+            "finalUrl": "https://www.bol.com/be/nl/p/lego-icons-wilde-bloemen-boeket-10313/9300000131876375/",
+            "attempts": [
+                {
+                    "transport": "http",
+                    "statusCode": 403,
+                    "finalUrl": "https://www.bol.com/be/nl/p/lego-icons-wilde-bloemen-boeket-10313/9300000131876375/",
+                    "durationMs": 221.60887718200684,
+                    "timedOut": false,
+                    "error": "http_error"
+                }
+            ]
+        },
+        {
+            "shop": "amazon.fr",
+            "url": "https://www.amazon.fr/dp/B00BLHX6J8",
+            "checkedAt": "2026-10-31T10:59:35+00:00",
+            "outcome": "blocked",
+            "httpStatus": 200,
+            "name": null,
+            "priceInCents": null,
+            "priceCurrency": null,
+            "imageUrl": null,
+            "finalUrl": "https://www.amazon.fr/dp/B00BLHX6J8",
+            "attempts": [
+                {
+                    "transport": "http",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.amazon.fr/dp/B00BLHX6J8",
+                    "durationMs": 69.63896751403809,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        },
+        {
+            "shop": "coolblue.be",
+            "url": "https://www.coolblue.be/nl/product/905650/sony-linkbuds-s-zwart.html",
+            "checkedAt": "2026-10-31T10:59:36+00:00",
+            "outcome": "success",
+            "httpStatus": 200,
+            "name": "Sony LinkBuds S Zwart",
+            "priceInCents": 14900,
+            "priceCurrency": "EUR",
+            "imageUrl": "https://image.coolblue.nl/500x500/products/1757924",
+            "finalUrl": "https://www.coolblue.be/nl/product/905650/sony-linkbuds-s-zwart.html",
+            "attempts": [
+                {
+                    "transport": "http",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.coolblue.be/nl/product/905650/sony-linkbuds-s-zwart.html",
+                    "durationMs": 848.1149673461914,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        },
+        {
+            "shop": "IKEA BE",
+            "url": "https://www.ikea.com/be/nl/p/kallax-open-kast-wit-20275814/",
+            "checkedAt": "2026-10-31T10:59:36+00:00",
+            "outcome": "blocked",
+            "httpStatus": 403,
+            "name": null,
+            "priceInCents": null,
+            "priceCurrency": null,
+            "imageUrl": null,
+            "finalUrl": "https://www.ikea.com/be/nl/p/kallax-open-kast-wit-20275814/",
+            "attempts": [
+                {
+                    "transport": "http",
+                    "statusCode": 403,
+                    "finalUrl": "https://www.ikea.com/be/nl/p/kallax-open-kast-wit-20275814/",
+                    "durationMs": 34.66296195983887,
+                    "timedOut": false,
+                    "error": "http_error"
+                }
+            ]
+        },
+        {
+            "shop": "amazon.de",
+            "url": "https://www.amazon.de/dp/B09Y2MYL5C",
+            "checkedAt": "2026-10-31T10:59:36+00:00",
+            "outcome": "blocked",
+            "httpStatus": 200,
+            "name": null,
+            "priceInCents": null,
+            "priceCurrency": null,
+            "imageUrl": null,
+            "finalUrl": "https://www.amazon.de/dp/B09Y2MYL5C",
+            "attempts": [
+                {
+                    "transport": "http",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.amazon.de/dp/B09Y2MYL5C",
+                    "durationMs": 59.82804298400879,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        },
+        {
+            "shop": "amazon.fr",
+            "url": "https://www.amazon.fr/dp/B09Y2MYL5C",
+            "checkedAt": "2026-10-31T10:59:36+00:00",
+            "outcome": "blocked",
+            "httpStatus": 200,
+            "name": null,
+            "priceInCents": null,
+            "priceCurrency": null,
+            "imageUrl": null,
+            "finalUrl": "https://www.amazon.fr/dp/B09Y2MYL5C",
+            "attempts": [
+                {
+                    "transport": "http",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.amazon.fr/dp/B09Y2MYL5C",
+                    "durationMs": 78.32503318786621,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        },
+        {
+            "shop": "amazon.com.be",
+            "url": "https://www.amazon.com.be/dp/B09Y2MYL5C",
+            "checkedAt": "2026-10-31T10:59:36+00:00",
+            "outcome": "blocked",
+            "httpStatus": 200,
+            "name": null,
+            "priceInCents": null,
+            "priceCurrency": null,
+            "imageUrl": null,
+            "finalUrl": "https://www.amazon.com.be/dp/B09Y2MYL5C",
+            "attempts": [
+                {
+                    "transport": "http",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.amazon.com.be/dp/B09Y2MYL5C",
+                    "durationMs": 59.71384048461914,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        },
+        {
+            "shop": "amazon.de",
+            "url": "https://www.amazon.de/dp/B00BLHX6J8",
+            "checkedAt": "2026-10-31T11:01:55+00:00",
+            "outcome": "success",
+            "httpStatus": 200,
+            "name": "LEGO Botanicals Wildflower Bouquet Set - Artificial Flowers with Poppies and Lavender - Crafts kit for Adults - Home Office Décor Gifts for Women and Men - 10313",
+            "priceInCents": 3899,
+            "priceCurrency": "EUR",
+            "imageUrl": "https://m.media-amazon.com/images/I/71C4onwoH0L._AC_SL1500_.jpg",
+            "finalUrl": "https://www.amazon.de/dp/B00BLHX6J8",
+            "attempts": [
+                {
+                    "transport": "browser",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.amazon.de/dp/B00BLHX6J8",
+                    "durationMs": 6212.771892547607,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        },
+        {
+            "shop": "amazon.de",
+            "url": "https://www.amazon.de/dp/B09Y2MYL5C",
+            "checkedAt": "2026-10-31T11:02:00+00:00",
+            "outcome": "success",
+            "httpStatus": 200,
+            "name": "Sony WH-1000XM5 Premium Wireless Noise Cancelling Headphones",
+            "priceInCents": 20704,
+            "priceCurrency": "EUR",
+            "imageUrl": "https://m.media-amazon.com/images/I/61fxPWFu6aL._AC_SL1500_.jpg",
+            "finalUrl": "https://www.amazon.de/dp/B09Y2MYL5C",
+            "attempts": [
+                {
+                    "transport": "browser",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.amazon.de/dp/B09Y2MYL5C",
+                    "durationMs": 5416.152000427246,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        },
+        {
+            "shop": "amazon.com.be",
+            "url": "https://www.amazon.com.be/dp/B00BLHX6J8",
+            "checkedAt": "2026-10-31T11:02:06+00:00",
+            "outcome": "success",
+            "httpStatus": 200,
+            "name": "LEGO Botanicals Wildflower Bouquet Set - Artificial Flowers with Poppies and Lavender - Crafts kit for Adults - Home Office Décor Gifts for Women and Men - 10313",
+            "priceInCents": 4178,
+            "priceCurrency": "EUR",
+            "imageUrl": "https://m.media-amazon.com/images/I/71C4onwoH0L._AC_SL1500_.jpg",
+            "finalUrl": "https://www.amazon.com.be/dp/B00BLHX6J8",
+            "attempts": [
+                {
+                    "transport": "browser",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.amazon.com.be/dp/B00BLHX6J8",
+                    "durationMs": 5363.049030303955,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        },
+        {
+            "shop": "amazon.nl",
+            "url": "https://www.amazon.nl/dp/B09Y2MYL5C",
+            "checkedAt": "2026-10-31T11:02:11+00:00",
+            "outcome": "success",
+            "httpStatus": 200,
+            "name": "Sony WH-1000XM5 Noise Cancelling Wireless Headphones - 30 Hours Battery Life - Over-ear - Optimized for Alexa and Google Assistant - with Built-in Microphone for Phone Calls - Black",
+            "priceInCents": 24999,
+            "priceCurrency": "EUR",
+            "imageUrl": "https://m.media-amazon.com/images/I/61fxPWFu6aL._AC_SL1500_.jpg",
+            "finalUrl": "https://www.amazon.nl/dp/B09Y2MYL5C",
+            "attempts": [
+                {
+                    "transport": "browser",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.amazon.nl/dp/B09Y2MYL5C",
+                    "durationMs": 5314.318895339966,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        },
+        {
+            "shop": "amazon.com.be",
+            "url": "https://www.amazon.com.be/dp/B09Y2MYL5C",
+            "checkedAt": "2026-10-31T11:02:16+00:00",
+            "outcome": "success",
+            "httpStatus": 200,
+            "name": "Sony WH-1000XM5 - Noise Cancelling Wireless Bluetooth Headphones - 30 Hours of Battery Life - Optimized for Alexa and Google Assistant - with Built-in Mic for Phone Calls - Black",
+            "priceInCents": 23900,
+            "priceCurrency": "EUR",
+            "imageUrl": "https://m.media-amazon.com/images/I/61eAWWP7DuL._AC_SL1500_.jpg",
+            "finalUrl": "https://www.amazon.com.be/dp/B09Y2MYL5C",
+            "attempts": [
+                {
+                    "transport": "browser",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.amazon.com.be/dp/B09Y2MYL5C",
+                    "durationMs": 5033.5540771484375,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        },
+        {
+            "shop": "amazon.fr",
+            "url": "https://www.amazon.fr/dp/B09Y2MYL5C",
+            "checkedAt": "2026-10-31T11:02:22+00:00",
+            "outcome": "success",
+            "httpStatus": 200,
+            "name": "Sony WH-1000XM5 Premium Noise Cancelling Wireless Bluetooth Headphones",
+            "priceInCents": 26999,
+            "priceCurrency": "EUR",
+            "imageUrl": "https://m.media-amazon.com/images/I/61wVfgyu8qL._AC_SL1500_.jpg",
+            "finalUrl": "https://www.amazon.fr/dp/B09Y2MYL5C",
+            "attempts": [
+                {
+                    "transport": "browser",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.amazon.fr/dp/B09Y2MYL5C",
+                    "durationMs": 5486.16886138916,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        },
+        {
+            "shop": "amazon.nl",
+            "url": "https://www.amazon.nl/dp/B00BLHX6J8",
+            "checkedAt": "2026-10-31T11:02:27+00:00",
+            "outcome": "success",
+            "httpStatus": 200,
+            "name": "LEGO Botanicals Wildflower Bouquet 10313",
+            "priceInCents": 4099,
+            "priceCurrency": "EUR",
+            "imageUrl": "https://m.media-amazon.com/images/I/71C4onwoH0L._AC_SL1500_.jpg",
+            "finalUrl": "https://www.amazon.nl/dp/B00BLHX6J8",
+            "attempts": [
+                {
+                    "transport": "browser",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.amazon.nl/dp/B00BLHX6J8",
+                    "durationMs": 5529.356002807617,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        },
+        {
+            "shop": "amazon.fr",
+            "url": "https://www.amazon.fr/dp/B00BLHX6J8",
+            "checkedAt": "2026-10-31T11:02:33+00:00",
+            "outcome": "success",
+            "httpStatus": 200,
+            "name": "LEGO Botanicals Wildflower Bouquet - Artificial Plants with Poppies and Lavender - Adult Hand Activity - Gift Idea for Women or Men - Edition 2023-10313",
+            "priceInCents": 3899,
+            "priceCurrency": "EUR",
+            "imageUrl": "https://m.media-amazon.com/images/I/8122rxzFdIL._AC_SL1500_.jpg",
+            "finalUrl": "https://www.amazon.fr/dp/B00BLHX6J8",
+            "attempts": [
+                {
+                    "transport": "browser",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.amazon.fr/dp/B00BLHX6J8",
+                    "durationMs": 5789.704084396362,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        },
+        {
+            "shop": "coolblue.be",
+            "url": "https://www.coolblue.be/fr/produit/905648/sony-wh-1000xm5-noir.html",
+            "checkedAt": "2026-10-31T11:05:11+00:00",
+            "outcome": "success",
+            "httpStatus": 200,
+            "name": "Sony WH-1000XM5 Noir",
+            "priceInCents": 24900,
+            "priceCurrency": "EUR",
+            "imageUrl": "https://image.coolblue.nl/500x500/products/1755757",
+            "finalUrl": "https://www.coolblue.be/fr/produit/905648/sony-wh-1000xm5-noir.html",
+            "attempts": [
+                {
+                    "transport": "http",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.coolblue.be/fr/produit/905648/sony-wh-1000xm5-noir.html",
+                    "durationMs": 633.0299377441406,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        },
+        {
+            "shop": "coolblue.be",
+            "url": "https://www.coolblue.be/nl/product/905648/sony-wh-1000xm5-zwart.html",
+            "checkedAt": "2026-10-31T11:05:12+00:00",
+            "outcome": "success",
+            "httpStatus": 200,
+            "name": "Sony WH-1000XM5 Zwart",
+            "priceInCents": 24900,
+            "priceCurrency": "EUR",
+            "imageUrl": "https://image.coolblue.nl/500x500/products/1755757",
+            "finalUrl": "https://www.coolblue.be/nl/product/905648/sony-wh-1000xm5-zwart.html",
+            "attempts": [
+                {
+                    "transport": "http",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.coolblue.be/nl/product/905648/sony-wh-1000xm5-zwart.html",
+                    "durationMs": 901.8290042877197,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        },
+        {
+            "shop": "coolblue.be",
+            "url": "https://www.coolblue.be/nl/product/905650/sony-linkbuds-s-zwart.html",
+            "checkedAt": "2026-10-31T11:05:13+00:00",
+            "outcome": "success",
+            "httpStatus": 200,
+            "name": "Sony LinkBuds S Zwart",
+            "priceInCents": 14900,
+            "priceCurrency": "EUR",
+            "imageUrl": "https://image.coolblue.nl/500x500/products/1757924",
+            "finalUrl": "https://www.coolblue.be/nl/product/905650/sony-linkbuds-s-zwart.html",
+            "attempts": [
+                {
+                    "transport": "http",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.coolblue.be/nl/product/905650/sony-linkbuds-s-zwart.html",
+                    "durationMs": 427.3381233215332,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        },
+        {
+            "shop": "coolblue.be",
+            "url": "https://www.coolblue.be/nl/product/905649/sony-wh-1000xm5-zilver.html",
+            "checkedAt": "2026-10-31T11:05:13+00:00",
+            "outcome": "success",
+            "httpStatus": 200,
+            "name": "Sony WH-1000XM5 Zilver",
+            "priceInCents": 24900,
+            "priceCurrency": "EUR",
+            "imageUrl": "https://image.coolblue.nl/500x500/products/1755765",
+            "finalUrl": "https://www.coolblue.be/nl/product/905649/sony-wh-1000xm5-zilver.html",
+            "attempts": [
+                {
+                    "transport": "http",
+                    "statusCode": 200,
+                    "finalUrl": "https://www.coolblue.be/nl/product/905649/sony-wh-1000xm5-zilver.html",
+                    "durationMs": 549.4868755340576,
+                    "timedOut": false,
+                    "error": null
+                }
+            ]
+        }
+    ]
+}

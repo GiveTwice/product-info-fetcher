@@ -234,7 +234,7 @@ class ProductInfoFetcher
             $blocked = $e instanceof BrowserException ? $e : null;
             $this->html = $blocked?->getResponseHtml() ?? $this->html ?? '';
             $this->attempts[] = new TransportAttempt('browser', $blocked?->getStatusCode(),
-                $blocked?->getFinalUrl() ?? $this->url, (microtime(true) - $started) * 1000, false, 'browser_error');
+                $blocked?->getFinalUrl() ?? $this->url, (microtime(true) - $started) * 1000, $e->getMessage() === 'browser_process_timeout', 'browser_error');
             if (! $this->returnOutcomes) {
                 throw $e;
             }

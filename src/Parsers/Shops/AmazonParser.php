@@ -28,9 +28,14 @@ class AmazonParser implements ParserInterface
         libxml_use_internal_errors($previous);
         $xpath = new DOMXPath($doc);
         $read = function (string $query) use ($xpath): ?string {
-            $value = trim($xpath->query($query)?->item(0)?->nodeValue ?? '');
+            foreach ($xpath->query($query) as $node) {
+                $value = trim($node->nodeValue);
+                if ($value !== '') {
+                    return $value;
+                }
+            }
 
-            return $value !== '' ? $value : null;
+            return null;
         };
         $name = $read('//*[@id="productTitle"]');
         if ($name === null) {

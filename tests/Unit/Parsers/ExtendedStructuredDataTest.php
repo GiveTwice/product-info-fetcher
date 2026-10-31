@@ -34,3 +34,8 @@ it('fills missing structured fields from og prices even with a complete name and
     $result = (new ProductInfoFetcher)->setHtml('<script type="application/ld+json">{"@type":"Product","name":"Product","description":"Description"}</script><meta property="og:price:amount" content="49,99"><meta property="og:price:currency" content="EUR">')->parse();
     expect($result->priceInCents)->toBe(4999)->and($result->priceCurrency)->toBe('EUR');
 });
+
+it('ignores scalar JSON-LD and malformed schema type entries', function () {
+    $result = (new JsonLdParser('<script type="application/ld+json">"not an object"</script><script type="application/ld+json">{"@type":[null,{},"Product"],"name":"Usable product"}</script>'))->parse();
+    expect($result->name)->toBe('Usable product');
+});
