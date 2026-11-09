@@ -16,10 +16,10 @@ use GiveTwice\ProductInfoFetcher\Parsers\MetaTagParser;
 use GiveTwice\ProductInfoFetcher\Parsers\Shops\AmazonParser;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\RequestOptions;
 use GuzzleHttp\TransferStats;
+use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 
 class ProductInfoFetcher
@@ -194,8 +194,9 @@ class ProductInfoFetcher
             $this->html = $this->fetchViaHttp();
         } catch (TransferException $e) {
             // Keep the original HTTP response, independently of a browser fallback.
-            if ($e instanceof RequestException && $e->hasResponse()) {
-                $this->html = (string) $e->getResponse()->getBody();
+            $response = $this->responseFrom($e);
+            if ($response !== null) {
+                $this->html = (string) $response->getBody();
             }
 
             $status = $this->attempts[0]->statusCode ?? null;
@@ -280,7 +281,7 @@ class ProductInfoFetcher
             $this->attempts[] = new TransportAttempt('http', $response->getStatusCode(), $finalUrl,
                 (microtime(true) - $started) * 1000);
         } catch (TransferException $e) {
-            $status = $e instanceof RequestException ? $e->getResponse()?->getStatusCode() : null;
+            $status = $this->responseFrom($e)?->getStatusCode();
             $this->attempts[] = new TransportAttempt('http', $status, $finalUrl,
                 (microtime(true) - $started) * 1000, str_contains($e->getMessage(), 'cURL error 28'), 'http_error');
             $this->html = '';
@@ -288,6 +289,20 @@ class ProductInfoFetcher
         }
 
         return (string) $response->getBody();
+    }
+
+    /**
+     * Returns the HTTP response that came with a failed request, if there was one.
+     * Guzzle 7 has getResponse() on every RequestException. Guzzle 8 only has it on
+     * ResponseException, so checking for the method works on both versions.
+     */
+    private function responseFrom(TransferException $e): ?ResponseInterface
+    {
+        if (! method_exists($e, 'getResponse')) {
+            return null;
+        }
+
+        return $e->getResponse();
     }
 
     private function fetchViaHeadless(): HeadlessFetchResult
