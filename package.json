@@ -3,6 +3,6 @@
     "private": true,
     "description": "Node.js dependencies for headless browser support",
     "dependencies": {
-        "puppeteer": "^23.0"
+        "puppeteer": "^25.0"
     }
 }
