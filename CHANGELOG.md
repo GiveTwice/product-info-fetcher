@@ -2,6 +2,14 @@
 
 All notable changes to `product-info-fetcher` will be documented in this file.
 
+## 0.5.1 - 2026-11-09
+
+### What's Changed
+
+* Support Guzzle 8 and Pest 5, test on PHP 8.5 by @mattiasgeniar in https://github.com/GiveTwice/product-info-fetcher/pull/14
+
+**Full Changelog**: https://github.com/GiveTwice/product-info-fetcher/compare/0.5.0...0.5.1
+
 ## 0.5.0 (unreleased)
 
 - Add `fetchResult()` for explicit success, incomplete, blocked, consent, removed
