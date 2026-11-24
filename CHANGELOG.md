@@ -2,6 +2,14 @@
 
 All notable changes to `product-info-fetcher` will be documented in this file.
 
+## 0.5.2 - 2026-11-24
+
+### What's Changed
+
+* Ignore non-URL data-src values in HtmlImageParser by @mattiasgeniar in https://github.com/GiveTwice/product-info-fetcher/pull/15
+
+**Full Changelog**: https://github.com/GiveTwice/product-info-fetcher/compare/0.5.1...0.5.2
+
 ## 0.5.1 - 2026-11-09
 
 ### What's Changed
