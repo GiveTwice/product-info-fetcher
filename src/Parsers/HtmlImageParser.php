@@ -44,7 +44,9 @@ class HtmlImageParser implements ParserInterface
         $images = array_merge($images, $this->extractByProductImageClasses());
         $images = array_merge($images, $this->extractByDataAttributes());
 
-        return array_values(array_unique(array_filter($images)));
+        $images = array_filter(array_map('trim', $images), $this->isValidImageUrl(...));
+
+        return array_values(array_unique($images));
     }
 
     private function extractAmazonLandingImage(): array
@@ -161,16 +163,16 @@ class HtmlImageParser implements ParserInterface
             $nodes = $this->xpath->query("//img[@{$attr}]");
 
             foreach ($nodes as $node) {
-                if ($node instanceof DOMElement) {
-                    $value = $node->getAttribute($attr);
-                    if ($value !== '' && $this->isValidImageUrl($value)) {
-                        $images[] = $value;
-                    }
+                if (! $node instanceof DOMElement) {
+                    continue;
                 }
+
+                $fallbacks = $attr === 'data-src' ? ['src'] : [];
+                $images[] = $this->firstValidUrl($node, $attr, ...$fallbacks);
             }
         }
 
-        return $images;
+        return array_filter($images);
     }
 
     private function extractImageUrls(DOMElement $img): array
@@ -179,23 +181,38 @@ class HtmlImageParser implements ParserInterface
 
         $hiResAttributes = ['data-old-hires', 'data-zoom-image', 'data-large-image', 'data-hires'];
         foreach ($hiResAttributes as $attr) {
-            $value = $img->getAttribute($attr);
-            if ($value !== '' && $this->isValidImageUrl($value)) {
-                $urls[] = $value;
+            $urls[] = $this->firstValidUrl($img, $attr);
+        }
+
+        $urls[] = $this->firstValidUrl($img, 'data-src', 'src');
+
+        return array_filter($urls);
+    }
+
+    private function firstValidUrl(DOMElement $img, string ...$attributes): ?string
+    {
+        foreach ($attributes as $attribute) {
+            $value = trim($img->getAttribute($attribute));
+
+            if ($this->isValidImageUrl($value)) {
+                return $value;
             }
         }
 
-        $src = $img->getAttribute('data-src') ?: $img->getAttribute('src');
-        if ($src !== '' && $this->isValidImageUrl($src)) {
-            $urls[] = $src;
-        }
-
-        return $urls;
+        return null;
     }
 
+    /**
+     * Checks that an attribute value can be used as an image URL.
+     *
+     * Lazy-loading scripts leave values such as "false" or "#" in data-src,
+     * and those must not be returned as images. Relative paths are kept as
+     * written, because no parser in this package resolves them against the
+     * page URL.
+     */
     private function isValidImageUrl(string $url): bool
     {
-        if (str_starts_with($url, 'data:')) {
+        if ($url === '') {
             return false;
         }
 
@@ -203,6 +220,39 @@ class HtmlImageParser implements ParserInterface
             return false;
         }
 
-        return true;
+        if (str_starts_with($url, '//')) {
+            return $this->hasValidHost('https:'.$url);
+        }
+
+        if (preg_match('#^https?://#i', $url)) {
+            return $this->hasValidHost($url);
+        }
+
+        if (preg_match('/^[a-z][a-z0-9+.-]*:/i', $url)) {
+            return false;
+        }
+
+        $path = preg_replace('/[?#].*/s', '', $url);
+
+        if (str_contains($path, '/')) {
+            return true;
+        }
+
+        return (bool) preg_match('/\.(jpe?g|png|gif|webp|avif|svg)$/i', $path);
+    }
+
+    private function hasValidHost(string $url): bool
+    {
+        $host = parse_url($url, PHP_URL_HOST);
+
+        if (! is_string($host)) {
+            return false;
+        }
+
+        if (preg_match('/^\[(.+)\]$/', $host, $matches)) {
+            return filter_var($matches[1], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false;
+        }
+
+        return filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) !== false;
     }
 }

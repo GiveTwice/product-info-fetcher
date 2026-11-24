@@ -52,6 +52,14 @@ dataset('html_images', [
         'expectedImageUrl' => null,
         'expectedAllImages' => [],
     ],
+    'ikea gallery with data-src set to false' => [
+        'fixture' => 'HtmlImages/ikea-false-data-src.html',
+        'expectedImageUrl' => 'https://www.ikea.com/nl/nl/images/products/yxstaby-gaminglaptopsteun-met-opberger-wit__1559798_pe1025176_s5.jpg?f=u',
+        'expectedAllImages' => [
+            'https://www.ikea.com/nl/nl/images/products/yxstaby-gaminglaptopsteun-met-opberger-wit__1559798_pe1025176_s5.jpg?f=u',
+            'https://www.ikea.com/nl/nl/images/products/yxstaby-gaminglaptopsteun-met-opberger-wit__1559796_pe1025174_s5.jpg?f=u',
+        ],
+    ],
     'multiple image sources combined' => [
         'fixture' => 'HtmlImages/multiple-sources.html',
         'expectedImageUrl' => 'https://cdn.example.com/images/product-hires.jpg',
@@ -96,3 +104,29 @@ it('extracts largest dynamic image first from json', function () {
 
     expect($dynamicImages[0])->toBe('https://m.media-amazon.com/images/I/61-RmrxQ5xL._AC_SY879_.jpg');
 });
+
+it('ignores data-src values that are not urls and falls back to src', function () {
+    $result = (new HtmlImageParser(getFixture('HtmlImages/ikea-false-data-src.html')))->parse();
+
+    expect($result->allImageUrls)
+        ->not->toContain('false')
+        ->toContain('https://www.ikea.com/nl/nl/images/products/yxstaby-gaminglaptopsteun-met-opberger-wit__1559796_pe1025174_s5.jpg?f=u');
+});
+
+it('picks data-src over src only when data-src is a usable url', function (string $dataSrc, string $src, string $expected) {
+    $html = '<img class="product-image" src="'.$src.'" data-src="'.$dataSrc.'">';
+
+    expect((new HtmlImageParser($html))->parse()->allImageUrls)->toBe([$expected]);
+})->with([
+    'false' => ['false', 'https://shop.example.com/real.jpg', 'https://shop.example.com/real.jpg'],
+    'null' => ['null', 'https://shop.example.com/real.jpg', 'https://shop.example.com/real.jpg'],
+    'hash' => ['#', 'https://shop.example.com/real.jpg', 'https://shop.example.com/real.jpg'],
+    'scheme without host' => ['https://', 'https://shop.example.com/real.jpg', 'https://shop.example.com/real.jpg'],
+    'protocol-relative without host' => ['//', 'https://shop.example.com/real.jpg', 'https://shop.example.com/real.jpg'],
+    'host with spaces' => ['https://not a url/p.jpg', 'https://shop.example.com/real.jpg', 'https://shop.example.com/real.jpg'],
+    'malformed host' => ['https://[broken/product.jpg', 'https://shop.example.com/real.jpg', 'https://shop.example.com/real.jpg'],
+    'javascript scheme' => ['javascript:void(0)', 'https://shop.example.com/real.jpg', 'https://shop.example.com/real.jpg'],
+    'root-relative path' => ['/images/product.jpg', 'data:image/gif;base64,R0lGODlhAQABAAAAACw=', '/images/product.jpg'],
+    'relative path without extension' => ['images/product', 'https://shop.example.com/real.jpg', 'images/product'],
+    'protocol-relative url' => ['//cdn.example.com/p.jpg', 'https://shop.example.com/real.jpg', '//cdn.example.com/p.jpg'],
+]);
